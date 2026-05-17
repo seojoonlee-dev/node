@@ -6,7 +6,7 @@ Node uses Express with Node.js as its backend and React + Typescript as the fron
 
 ### Markdown
 
-In node, makedown is done completely headlessly, meaning there isnt a bold button to bold your text (unless you decide to change it. it'ss opensource after all). Instead it uses the Tiptap editors builtin markdown shortcuts. Refer to the official Tiptap documents for more info: https://tiptap.dev/docs/examples/basics/markdown-shortcuts
+In node, makedown is done completely headlessly, meaning there isn't a bold button to bold your text (unless you decide to change it. it's opensource after all). Instead it uses the Tiptap editor's built-in markdown shortcuts. Refer to the official Tiptap documents for more info: https://tiptap.dev/docs/examples/basics/markdown-shortcuts
 
 
 
