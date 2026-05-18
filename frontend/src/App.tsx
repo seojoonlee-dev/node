@@ -22,6 +22,7 @@ function MainWorkspace() {
   const navigate = useNavigate();
   
   const [content, setContent] = useState('');
+  const [title, setTitle] = useState('');
   const [files, setFiles] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -32,24 +33,29 @@ function MainWorkspace() {
   useEffect(() => {
     const loadFile = async () => {
       if (!filePath) {
-        setContent(''); 
+        setContent('');
+        setTitle('');
         return;
       }
 
       // Stale
       if (cacheRef.current[filePath] !== undefined) {
         setContent(cacheRef.current[filePath]);
+        setTitle(filePath);
       } else {
         setContent('');
+        setTitle('');
       }
       
       // Revalidate
       try {
-        const response = await fetch(`/api/load?filePath=${encodeURIComponent(filePath)}`);        const data = await response.json();
+        const response = await fetch(`/api/load?filePath=${encodeURIComponent(filePath)}`);
+        const data = await response.json();
         
         if (data.success) {
           if (cacheRef.current[filePath] !== data.content) {
             setContent(data.content);
+            setTitle(filePath);
             cacheRef.current[filePath] = data.content;
             console.log('Background sync: File updated from server.');
           }
@@ -76,17 +82,44 @@ function MainWorkspace() {
       });
       
       if (response.ok) {
-        console.log('Saved!');
+        alert("saved")
         cacheRef.current[filePath] = content;
         setTimeout(() => console.log(''), 2000);
       } else {
         console.log('Error saving file.');
       }
     } catch (error) {
+      alert("couldnt save: " + error)
       console.error('Save failed:', error);
       console.log('Server connection error.');
     }
   }, [filePath, content]);
+
+  const renameFile = useCallback(async (renameTo:string) => {
+    if (!filePath) return;
+    
+    console.log('Renaming...');
+    try {
+      const response = await fetch('/api/rename', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filePath, renameTo, content }),
+      });
+      
+      if (response.ok) {
+        alert("renamed")
+        cacheRef.current[renameTo] = content;
+        setTimeout(() => console.log(''), 2000);
+        navigate(`/${renameTo}`)
+      } else {
+        console.log('Error renaming file.');
+      }
+    } catch (error) {
+      alert("couldnt rename: " + error)
+      console.error('Save failed:', error);
+      console.log('Server connection error.');
+    }
+  }, [filePath, content, navigate]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -212,9 +245,7 @@ function MainWorkspace() {
         </div>
 
         <div id="edit">
-          <h2>{filePath ? `${filePath}` : 'No nodes selected'}</h2>
-          <hr id="line"></hr>
-          <Editor content={content} onChange={setContent} />
+          <Editor content={content} onChange={setContent} title={filePath} onTitleChange={renameFile}/>
         </div>
       </div>
     </>

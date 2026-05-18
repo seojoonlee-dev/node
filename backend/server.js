@@ -25,6 +25,23 @@ app.post('/api/save', async (req, res) => {
   }
 });
 
+app.post('/api/rename', async (req, res) => {
+  const { filePath, newSavePath } = req.body;
+  
+  try {
+    const oldPath = path.join(NOTES_DIR, `${filePath}.txt`);
+    const newPath = path.join(NOTES_DIR, `${newSavePath}.txt`);
+    
+    await fs.rename(oldPath, newPath);
+    
+    res.json({ success: true, message: 'File renamed successfully!' });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({ success: false, message: 'Failed to rename file' });
+  }
+});
+
 async function getAllFiles(dir, baseDir = dir) {
   let results = [];
   try {

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -8,9 +8,25 @@ interface EditorProps {
   content: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  title?: string;
+  onTitleChange: (value: string) => void;
 }
 
-function Editor({ content, onChange, placeholder = "Start typing your node here..." }: EditorProps) {
+function Editor({ content, onChange, placeholder = "Start typing your node here...", title, onTitleChange }: EditorProps) {
+  const titleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
+  };
+
+  const titleChangeSave = (event: ChangeEvent<HTMLInputElement>) => {
+    onTitleChange(event.target.value);
+  };
+
+  useEffect(() => {
+    setTitle(title);
+  }, [title]);
+
+  const [value, setTitle] = useState(title);
+  
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -36,8 +52,11 @@ function Editor({ content, onChange, placeholder = "Start typing your node here.
   }, [content, editor]);
 
   return (
-    <div className="tiptap-container">
-      <EditorContent editor={editor} />
+    <div>
+      <div className="tiptap-container">
+        <input type="text" value={value} onChange={titleChange} onBlur={titleChangeSave} id="titleEdit"></input>
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }

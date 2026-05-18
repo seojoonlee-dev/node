@@ -9,4 +9,13 @@ export default defineConfig({
       fileName: "THIRD-PARTY-LICENSES.md",
     },
   },
+  // for development. delete later.
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      }
+    }
+  }
 })

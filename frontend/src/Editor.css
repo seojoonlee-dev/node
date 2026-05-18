@@ -1,7 +1,7 @@
 /* Container to make it look like a textarea */
 .tiptap-container {
   border: 1px solid #FFF0E3;
-  padding: 16px;
+  padding-left: 10px;
   background-color: #282828;
   min-height: 100%;
   cursor: text;
@@ -20,4 +20,19 @@
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+#titleEdit {
+  border: 0;
+  background-color: #282828;
+  color: #FFF0E3;
+  font-size: larger;
+  font-size: 2em;
+  font-weight: bold;
+  font-family: inherit;
+  padding: 0;
+}
+
+#titleEdit:focus {
+  outline: none;
 }
