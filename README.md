@@ -10,7 +10,7 @@ In node, makedown is done completely headlessly, meaning there isn't a bold butt
 
 ### Quick Start
 #### Installation
-Simply clone this repo and run docker compose --build
+Simply clone this repo and build with docker compose.
 
 ```
 git clone https://github.com/seojoonlee-dev/node
