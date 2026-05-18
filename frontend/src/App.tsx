@@ -103,6 +103,10 @@ function MainWorkspace() {
       
       if (response.ok) {
         cacheRef.current[renameTo] = content;
+
+        setFiles((prevFiles: string[]) =>
+          [...prevFiles, renameTo].filter((file) => file !== filePath)
+        );
         navigate(`/${renameTo}`);
       } else {
         console.log('Error renaming file.');

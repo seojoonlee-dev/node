@@ -21,7 +21,9 @@ function Editor({ content, onChange, placeholder = "Start typing your node here.
   };
 
   const titleChangeSave = () => {
-    onTitleChange(value);
+    if (title !== value) {
+      onTitleChange(value);
+    }
   };
 
   useEffect(() => {
