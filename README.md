@@ -9,6 +9,7 @@ Node uses Express with Node.js as its backend and React + Typescript as the fron
 In node, makedown is done completely headlessly, meaning there isn't a bold button to bold your text (unless you decide to change it. it's opensource after all). Instead it uses the Tiptap editor's built-in markdown shortcuts. Refer to the official Tiptap documents for more info: https://tiptap.dev/docs/examples/basics/markdown-shortcuts
 
 ### Quick Start
+#### Installation
 Simple clone this repo and run docker compose --build
 
 ```
@@ -17,6 +18,16 @@ cd node
 docker compose up --build
 ```
 You shall now be able to access the fronend at http://localhost:8080. Additionally, the backend will use port 3001 by default. If you wish to manually change which port to use simply edit docker-compose.yml.
+
+#### Updating
+Simple pull this repo inside /node and rebuild with docker compose.
+
+```
+cd node
+git pull
+docker compose up --build
+```
+
 
 ### Note
 > [!NOTE]
