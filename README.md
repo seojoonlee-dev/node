@@ -1,6 +1,6 @@
-# Node Text Editor
+# Node note taker
 
-Node is a self hosted, no-bs, extremely simple and lightweight text editing app which offers WYSIWYG editing using Tiptap. No AI, no encryption, no grammer checking, no drawing, no bloat. Just text and editing.
+Node is a self hosted, no-bs, extremely simple and lightweight note taking app which offers WYSIWYG editing using Tiptap. No AI, no encryption, no grammer checking, no drawing, no bloat. Just text and editing.
 
 Node uses Express with Node.js as its backend and React + Typescript as the frontend.
 
