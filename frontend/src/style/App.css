@@ -71,10 +71,13 @@ textarea:focus {
 }
 
 .button {
+  display: flexbox;
   width: 100%;
   border: 0;
   background-color: #FFF0E3;
-  border-radius: 10px;
+  color: #282828;
+  padding-left: 5px;
+  text-align: left;
 }
 
 .headerButton {

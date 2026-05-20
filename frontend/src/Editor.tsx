@@ -13,7 +13,6 @@ interface EditorProps {
 }
 
 function Editor({ content, onChange, placeholder = "Start typing your node here...", title, onTitleChange }: EditorProps) {
-
   const [value, setTitle] = useState(title);
 
   const titleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -21,8 +20,9 @@ function Editor({ content, onChange, placeholder = "Start typing your node here.
   };
 
   const titleChangeSave = () => {
-    if (title !== value) {
-      onTitleChange(value);
+    const trimmedValue = value.trim();
+    if (trimmedValue && title !== trimmedValue) {
+      onTitleChange(trimmedValue);
     }
   };
 
@@ -46,7 +46,6 @@ function Editor({ content, onChange, placeholder = "Start typing your node here.
 
   useEffect(() => {
     if (!editor) return;
-
     const currentContent = editor.getHTML();
 
     if (content !== currentContent && !editor.isFocused) {
@@ -57,8 +56,14 @@ function Editor({ content, onChange, placeholder = "Start typing your node here.
   return (
     <div>
       <div className="tiptap-container">
-        <input type="text" value={value} onChange={titleChange} onBlur={titleChangeSave} id="titleEdit"></input>
-        <hr></hr>
+        <input 
+          type="text" 
+          value={value} 
+          onChange={titleChange} 
+          onBlur={titleChangeSave} 
+          id="titleEdit"
+        />
+        <hr />
         <EditorContent editor={editor} />
       </div>
     </div>
