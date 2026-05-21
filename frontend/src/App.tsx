@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link, useParams, useNavigate } from 'reac
 import Editor from './Editor';
 import './style/App.css';
 
+
 const FileList = memo(({ files, onCreate }: { files: string[], onCreate: () => void }) => {
   const parsedList = useMemo(() => {
     return files
@@ -56,6 +57,7 @@ function MainWorkspace() {
   const { '*': filePath } = useParams(); 
   const [fileName, setFileName] = useState('');
   const navigate = useNavigate();
+  const [serverIp, setServerIp] = useState(localStorage.getItem('serverIp') ? localStorage.getItem('serverIp') : "http://localhost:3001");
   
   const [content, setContent] = useState('');
   const [files, setFiles] = useState<string[]>([]);
@@ -74,7 +76,7 @@ function MainWorkspace() {
 
   const fetchFiles = useCallback(async () => {
     try {
-      const response = await fetch('/api/files');
+      const response = await fetch(`${serverIp}/api/files`);
       const data = await response.json();
             
       if (data.success) {
@@ -113,7 +115,7 @@ function MainWorkspace() {
       }
       
       try {
-        const response = await fetch(`/api/load?filePath=${encodeURIComponent(filePath)}`);
+        const response = await fetch(`${serverIp}/api/load?filePath=${encodeURIComponent(filePath)}`);
         const data = await response.json();
         
         if (data.success) {
@@ -134,7 +136,7 @@ function MainWorkspace() {
     if (!filePath) return;
     
     try {
-      const response = await fetch('/api/save', {
+      const response = await fetch(`${serverIp}/api/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filePath, content }),
@@ -153,7 +155,7 @@ function MainWorkspace() {
     if (!filePath || !newTitle.trim()) return;
 
     try {
-      const response = await fetch('/api/rename', {
+      const response = await fetch(`${serverIp}/api/rename`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filePath, newTitle }),
@@ -175,7 +177,7 @@ function MainWorkspace() {
 
   const createFile = useCallback(async () => {
     try {
-      const response = await fetch('/api/create', {
+      const response = await fetch(`${serverIp}/api/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPath: filePath || '' }),
@@ -202,7 +204,7 @@ function MainWorkspace() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`/api/delete?filePath=${encodeURIComponent(filePath)}`, {
+      const response = await fetch(`${serverIp}/api/delete?filePath=${encodeURIComponent(filePath)}`, {
         method: 'DELETE',
       });
       
@@ -249,6 +251,7 @@ function MainWorkspace() {
             {!loading && !error && (
               <FileList files={files} onCreate={createFile} />
             )}
+            <button onClick={() => {let ip = prompt("SetServerIP"); if (ip){ setServerIp(ip); localStorage.setItem('serverIp', ip)}}}>chnage server ip</button>
         </div>
         <div id="edit">
           <Editor 
