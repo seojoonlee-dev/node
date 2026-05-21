@@ -220,7 +220,7 @@ function MainWorkspace() {
   }, [filePath, fileName, navigate, fetchFiles, serverIp]);
 
   function changeServer() {
-    let ip = prompt("Server: ");
+    let ip = prompt("Enter the address of the server. (example: http://xxx.xxx.xxx.xxx:3001) ");
     if (ip) { 
       setServerIp(ip);
       localStorage.setItem('serverIp', ip);
@@ -247,20 +247,21 @@ function MainWorkspace() {
               <button onClick={saveFile} className='headerButton'>save</button>
               <button onClick={deleteFile} className='headerButton'>delete</button>
               <button onClick={changeServer} className='headerButton'>server</button>
-
             </header>
-            <h1 style={{margin: "20px 0px"}}>Nodes</h1>
-            
-            {loading && <p>Loading files...</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            
-            {!loading && !error && files.length === 0 && (
-                <p>No nodes found. Create a new node!</p>
-            )}
+            <div className='list'>
+              <h1 style={{margin: "20px 0px"}}>Nodes</h1>
+              
+              {loading && <p>Loading files...</p>}
+              {error && <p style={{ color: 'red' }}>{error}</p>}
+              
+              {!loading && !error && files.length === 0 && (
+                  <p>No nodes found. Create a new node!</p>
+              )}
 
-            {!loading && !error && (
-              <FileList files={files} onCreate={createFile} />
-            )}
+              {!loading && !error && (
+                <FileList files={files} onCreate={createFile} />
+              )}
+            </div>
         </div>
         <div id="edit">
           <Editor 
