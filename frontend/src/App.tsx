@@ -23,6 +23,7 @@ const FileList = memo(({ files, onCreate }: { files: string[], onCreate: () => v
           const segB = b.segments[i].toLowerCase();
           
           if (segA !== segB) {
+            // if readme.md file exists it wil always stay on top of the list.
             if (segA === 'readme') return -1;
             if (segB === 'readme') return 1;
             return segA.localeCompare(segB);
@@ -250,7 +251,7 @@ function MainWorkspace() {
               <button onClick={changeServer} className='headerButton'><img src='/settings.png' style={{width: "100%"}} className='headerImage' /></button>
             </header>
             <div className='list'>
-              <h1 style={{margin: "15px 0px", paddingBottom: "5px", paddingLeft: "5px"}}>Nodes</h1>
+              <h1 style={{margin: "5px 0px", paddingBottom: "15px", paddingLeft: "5px"}}>Nodes</h1>
             
               {loading && <p>Loading files...</p>}
               {error && <p style={{ color: 'red' }}>{error}</p>}
