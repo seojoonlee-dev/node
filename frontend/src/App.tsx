@@ -5,47 +5,74 @@ import './style/App.css';
 
 // file list in the sidebar
 const FileList = memo(({ files, onCreate }: { files: string[], onCreate: () => void }) => {
-  const parsedList = useMemo(() => {
-    return files
-      .map((fullPath) => {
-        const parts = fullPath.split('/');
-        const name = parts[parts.length - 1].replace(/\.md$/, '');
-        const depth = Math.max(0, parts.length - 2);
-        const segments = parts.slice(0, -1);
-        const dirPath = fullPath.substring(0, fullPath.lastIndexOf('/'));
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
-        return { dirPath, name, depth, segments };
-      })
-      .sort((a, b) => {
-        const minLen = Math.min(a.segments.length, b.segments.length);
+  const parsedList = useMemo(() => {
+    const parsed = files.map((fullPath) => {
+      const parts = fullPath.split('/');
+      return {
+        dirPath: fullPath.substring(0, fullPath.lastIndexOf('/')),
+        name: parts[parts.length - 1].replace(/\.md$/, ''),
+        depth: Math.max(0, parts.length - 2),
+        segments: parts.slice(0, -1),
+      };
+    });
+
+    const hasChildSet = new Set<string>();
+    parsed.forEach(({ dirPath }) => {
+      let current = dirPath;
+      while (current.includes('/')) {
+        current = current.substring(0, current.lastIndexOf('/'));
+        hasChildSet.add(current);
+      }
+    });
+
+    return parsed.sort((a, b) => {
+      const minLen = Math.min(a.segments.length, b.segments.length);
+      
+      for (let i = 0; i < minLen; i++) {
+        const segA = a.segments[i];
+        const segB = b.segments[i];
         
-        for (let i = 0; i < minLen; i++) {
-          const segA = a.segments[i].toLowerCase();
-          const segB = b.segments[i].toLowerCase();
+        if (segA.toLowerCase() !== segB.toLowerCase()) {
+          const pathA = a.segments.slice(0, i + 1).join('/');
+          const pathB = b.segments.slice(0, i + 1).join('/');
+          const hasChildA = hasChildSet.has(pathA);
+          const hasChildB = hasChildSet.has(pathB);
           
-          if (segA !== segB) {
-            // if README folder exists it wil always stay on top of the list.
-            if (segA === 'readme') return -1;
-            if (segB === 'readme') return 1;
-            return segA.localeCompare(segB);
-          }
+          if (hasChildA !== hasChildB) return hasChildA ? -1 : 1;
+          
+          return segA.localeCompare(segB);
         }
-        return a.segments.length - b.segments.length;
-      });
+      }
+      return a.segments.length - b.segments.length;
+    }).map(item => ({
+      ...item,
+      hasChildren: hasChildSet.has(item.dirPath)
+    }));
   }, [files]);
+
+  const visibleList = parsedList.filter(item => 
+    !Object.keys(collapsed).some(p => collapsed[p] && item.dirPath.startsWith(p + '/'))
+  );
 
   return (
     <div id="nodesItems">
-      {parsedList.map(({ dirPath, name, depth }) => (
-        <div 
-          key={ dirPath } 
-          style={{ paddingLeft: (depth * 10 )}}
-        >
-          <Link to={`/${dirPath}`} style={{ textDecoration: 'none' }}>
-            <button className="button">
-              {depth > 0 ? '↳ ' : ''}{name}
-            </button>
-          </Link>
+      {visibleList.map(({ dirPath, name, depth, hasChildren }) => (
+        <div key={dirPath} style={{ paddingLeft: depth * 5 }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {hasChildren ? (
+              <button 
+                onClick={() => setCollapsed(prev => ({ ...prev, [dirPath]: !prev[dirPath] }))}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: "#FFF0E3", paddingLeft: "5px", fontSize: "8px" }}
+              >
+                {collapsed[dirPath] ? '▶' : '▼'}
+              </button>
+            ) : <div style={{paddingLeft: "12px"}}/>}
+            <Link to={`/${dirPath}`}>
+              <button className="button">{name}</button>
+            </Link>
+          </div>
         </div>
       ))}
       <button onClick={onCreate} id="addButton">+</button> 
