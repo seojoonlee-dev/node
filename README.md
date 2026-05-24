@@ -1,6 +1,6 @@
 # Node note taker
 
-<img width="1315" height="952" alt="image" src="https://github.com/user-attachments/assets/aa4c1c96-1079-40d0-a433-0c8d7391fcd1" />
+<img width="1181" height="798" alt="image" src="https://github.com/user-attachments/assets/445bf605-7f15-4b2d-a957-a26279d05fde" />
 
 Node is a self hosted, no-bs, extremely simple and lightweight note taking app which offers WYSIWYG editing using Tiptap. No AI, no encryption, no grammer checking, no drawing, no bloat. Just text and editing.
 
