@@ -12,8 +12,9 @@ const FileList = memo(({ files, onCreate }: { files: string[], onCreate: () => v
         const name = parts[parts.length - 1].replace(/\.md$/, '');
         const depth = Math.max(0, parts.length - 2);
         const segments = parts.slice(0, -1);
+        const dirPath = fullPath.substring(0, fullPath.lastIndexOf('/'));
 
-        return { fullPath, name, depth, segments };
+        return { dirPath, name, depth, segments };
       })
       .sort((a, b) => {
         const minLen = Math.min(a.segments.length, b.segments.length);
@@ -35,12 +36,12 @@ const FileList = memo(({ files, onCreate }: { files: string[], onCreate: () => v
 
   return (
     <div id="nodesItems">
-      {parsedList.map(({ fullPath, name, depth }) => (
+      {parsedList.map(({ dirPath, name, depth }) => (
         <div 
-          key={ fullPath } 
+          key={ dirPath } 
           style={{ paddingLeft: (depth * 10 )}}
         >
-          <Link to={`/${fullPath}`} style={{ textDecoration: 'none' }}>
+          <Link to={`/${dirPath}`} style={{ textDecoration: 'none' }}>
             <button className="button">
               {depth > 0 ? '↳ ' : ''}{name}
             </button>
@@ -55,7 +56,22 @@ const FileList = memo(({ files, onCreate }: { files: string[], onCreate: () => v
 FileList.displayName = 'FileList';
 
 function MainWorkspace() {
-  const { '*': filePath } = useParams(); 
+  const { '*': parsedFilePath } = useParams();
+
+  const getFilePath = (path?:string) => {
+    if (!path) {
+      return "";
+    } else {
+      const segments = path.split('/');
+
+      const lastSegment = segments[segments.length - 1];
+
+      return `${path}/${lastSegment}.md`;
+    }
+  };
+
+  const filePath = getFilePath(parsedFilePath);
+
   const [fileName, setFileName] = useState('');
   const navigate = useNavigate();
   const [serverIp, setServerIp] = useState(localStorage.getItem('serverIp') ? localStorage.getItem('serverIp') : "http://localhost:3001");
@@ -119,9 +135,7 @@ function MainWorkspace() {
         setFileName('');
         return;
       }
-
-      const parsedFilePath = filePath.split("/").at(-1)?.replace(/\.md$/, '');
-      setFileName(parsedFilePath || '');
+      setFileName(parsedFilePath?.split("/").at(-1) || '');
 
       if (cacheRef.current[filePath] !== undefined) {
         setContent(cacheRef.current[filePath]);
