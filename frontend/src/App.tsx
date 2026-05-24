@@ -263,6 +263,25 @@ function MainWorkspace() {
     }
   }, [filePath, navigate, fetchFiles, serverIp]);
 
+  const createFileAtRoot = useCallback(async () => {
+    try {
+      const response = await fetch(`${serverIp}/api/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPath: '' }),
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        cacheRef.current[data.filePath] = '';
+        await fetchFiles();
+        navigate(`/${data.filePath}`); 
+      }
+    } catch (error) {
+      console.error('Create failed:', error);
+    }
+  }, [filePath, navigate, fetchFiles, serverIp]);
+
   const deleteFile = useCallback(async () => {
     if (!filePath) {
       alert("No file selected to delete!");
@@ -315,6 +334,7 @@ function MainWorkspace() {
             <header id="header">
               <button onClick={saveFile} className='headerButton'><img src='/save.png' style={{width: "100%"}} className='headerImage' /></button>
               <button onClick={deleteFile} className='headerButton'><img src='/delete.png' style={{width: "100%"}} className='headerImage' /></button>
+              <button onClick={createFileAtRoot} className='headerButton'><img src='/plus.png' style={{width: "100%"}} className='headerImage' /></button>
               <div style={{marginTop: "auto"}} />
               <button onClick={changeServer} className='headerButton'><img src='/settings.png' style={{width: "100%"}} className='headerImage' /></button>
             </header>
