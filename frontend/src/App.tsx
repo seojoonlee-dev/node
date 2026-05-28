@@ -113,8 +113,6 @@ function MainWorkspace() {
 
   const filePath = getFilePath(parsedFilePath);
 
-  const [createFilePath, setCreateFilePath] = useState('');
-
   const [fileName, setFileName] = useState('');
   const navigate = useNavigate();
   const [serverIp, setServerIp] = useState(localStorage.getItem('serverIp') ? localStorage.getItem('serverIp') : "http://localhost:3001");
@@ -268,7 +266,7 @@ function MainWorkspace() {
     } catch (error) {
       console.error('Create failed:', error);
     }
-  }, [filePath, navigate, fetchFiles, serverIp, createFilePath]);
+  }, [filePath, navigate, fetchFiles, serverIp]);
 
 
   const deleteFile = useCallback(async () => {
