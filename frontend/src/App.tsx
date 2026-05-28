@@ -5,6 +5,8 @@ import './style/App.css';
 
 // file list in the sidebar
 const FileList = memo(({ files, onCreate }: { files: string[], onCreate: (path:string) => void }) => {
+  const { '*': parsedFilePath } = useParams();
+
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   const parsedList = useMemo(() => {
@@ -60,7 +62,7 @@ const FileList = memo(({ files, onCreate }: { files: string[], onCreate: (path:s
     <div id="nodesItems">
       {visibleList.map(({ dirPath, name, depth, hasChildren }) => (
         <div key={dirPath} style={{ paddingLeft: depth * 10 }}>
-          <div style={{ display: "flex", alignItems: "center", paddingLeft: "5px" }} className='node'>
+          <div style={{ backgroundColor: parsedFilePath == dirPath ? "#282828" : "rgba(0,0,0,0)" }} className='node'>
             {hasChildren ? (
               <button 
                 onClick={() => setCollapsed(prev => ({ ...prev, [dirPath]: !prev[dirPath] }))}

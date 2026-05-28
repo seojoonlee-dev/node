@@ -31,7 +31,7 @@ hr {
   background-color: #282828;
   height: calc(100vh - 22px);
   cursor: text;
-  border-radius: 20px 0px 0px 20px;
+  border-radius: 16px 0px 0px 16px;
   height: 100vh;
 }
 
