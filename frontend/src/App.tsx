@@ -39,12 +39,12 @@ const FileList = memo(({ files, onCreate }: { files: string[], onCreate: (path:s
         const segB = b.segments[i];
         
         if (segA.toLowerCase() !== segB.toLowerCase()) {
-          const pathA = a.segments.slice(0, i + 1).join('/');
-          const pathB = b.segments.slice(0, i + 1).join('/');
-          const hasChildA = hasChildSet.has(pathA);
-          const hasChildB = hasChildSet.has(pathB);
+          //const pathA = a.segments.slice(0, i + 1).join('/');
+          //const pathB = b.segments.slice(0, i + 1).join('/');
+          //const hasChildA = hasChildSet.has(pathA);
+          //const hasChildB = hasChildSet.has(pathB);
           
-          if (hasChildA !== hasChildB) return hasChildA ? -1 : 1;
+          //if (hasChildA !== hasChildB) return hasChildA ? -1 : 1;
           
           return segA.localeCompare(segB);
         }

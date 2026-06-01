@@ -7,6 +7,10 @@ hr {
   color: #FFF0E3;
 }
 
+a {
+  cursor: pointer;
+}
+
 #titleEdit {
   margin-top: 10px;
   border: 0;
@@ -23,6 +27,7 @@ hr {
 #titleEdit:focus {
   outline: none;
 }
+
 /* Container */
 .tiptap-container {
   display: flex;
