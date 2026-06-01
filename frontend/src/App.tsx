@@ -110,7 +110,6 @@ function MainWorkspace() {
 
   const navigate = useNavigate();
 
-
   const filePath = getFilePath(parsedFilePath);
 
   const [fileName, setFileName] = useState('');
@@ -123,7 +122,6 @@ function MainWorkspace() {
   const cacheRef = useRef<Record<string, string>>({});
   const [popupOpen, setPopupOpen] = useState(false);
   const [sideBarOpen, toggleSideBar] = useState(true);
-
 
   // sidebar
   const [sidebarWidth, setSidebarWidth] = useState(() => {
@@ -141,10 +139,7 @@ function MainWorkspace() {
       setSidebarWidth(newWidth); 
     }
   };
-
-  useEffect(() => {
-
-  }, [serverIp])
+  
   // saved popup
   useEffect(() => {
     if (popupOpen) {
