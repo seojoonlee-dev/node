@@ -1,84 +1,78 @@
-import { Mark, InputRule } from '@tiptap/core'
+import { Mark, markInputRule, mergeAttributes } from '@tiptap/core';
 
 export interface NewFileOptions {
-  createUrl: (filename: string) => string
+  url?: string;
 }
 
 export const NewFile = Mark.create<NewFileOptions>({
   name: 'newFile',
+  inclusive: false,
+
+  addOptions() {
+    return {
+      url: '',
+    }
+  },
 
   addAttributes() {
     return {
-      href: {
-        default: null,
-        parseHTML: element => element.getAttribute('href'),
-        renderHTML: attributes => ({ href: attributes.href }),
+      filepath: {
+        default: "no name was provided",
+        parseHTML: element => element.getAttribute('data-filepath'),
+        renderHTML: attributes => {
+          return { 
+            'data-filepath': attributes.filepath,
+            'href': `${this.options.url || ''}/${attributes.filepath}`,
+          }
+        },
       },
     }
   },
 
   parseHTML() {
-    return [{ tag: 'a' }]
+    return [{ tag: 'a[data-type="new-file"]' }]
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['a', HTMLAttributes, 0]
+    return ['a', mergeAttributes(HTMLAttributes, { 'data-type': 'new-file' }), 0];
   },
+
 
   markdownTokenizer: {
     name: 'newFile',
     level: 'inline',
-    start: (src) => src.indexOf('[['),
-    tokenize(src, _tokens, lexer) {
+    tokenize: (src, _tokens, lexer) => {
       const match = /^\[\[([^\]]+)\]\]/.exec(src)
       if (!match) return undefined
       
-      const fileName = match[1].trim()
       return {
         type: 'newFile',
         raw: match[0],
-        text: fileName,
-        tokens: lexer.inlineTokens ? lexer.inlineTokens(fileName) : [],
+        text: match[1],
+
+        tokens: lexer.inlineTokens(match[1]),
       }
     },
   },
 
-  parseMarkdown(this: any, token, helpers) {
-    const fileName = token.text || token.content || 'unknown'
-    
-    const href = this.options?.createUrl 
-      ? this.options.createUrl(fileName)
-      : `/${fileName}`
-
+  parseMarkdown: (token, helpers) => {
     const content = helpers.parseInline(token.tokens || [])
-    return helpers.applyMark('wikiLink', content, { href })
+    return helpers.applyMark('newFile', content, { filepath: token.text })
   },
 
-  renderMarkdown: {
-    open: '[[',
-    close: ']]',
-    mixable: true,
-    expelEnclosingWhitespace: true,
-  } as any,
+  renderMarkdown: (mark, helpers) => {
+    const content = helpers.renderChildren(mark)
+    return `[[${content}]]`
+  },
 
   addInputRules() {
     return [
-      new InputRule({
-        find: /\[\[([^\]]+)\]\]$/,
-        handler: ({ state, range, match }) => {
-          const fileName = match[1]?.trim()
-
-          if (fileName) {
-            const href = this.options.createUrl(fileName)
-
-            state.tr.replaceWith(
-              range.from,
-              range.to,
-              state.schema.text(fileName, [this.type.create({ href })])
-            )
-            state.tr.removeStoredMark(this.type)
-          }
-        },
+      markInputRule({
+        find: /\[\[([^\]]+)\]\]\s$/,
+        type: this.type,
+        getAttributes: match => {
+          return { filepath: match[1] };
+        }
       }),
     ]
   },

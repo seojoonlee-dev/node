@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, type ChangeEvent } from 'react';
+import { useParams } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -13,7 +14,6 @@ interface EditorProps {
   placeholder?: string;
   title: string;
   onTitleChange: (value: string) => void;
-  filePath?: string;
 }
 
 // this helper function exists so that intentional new lines are cached and showed instead of getting ignored.
@@ -41,7 +41,9 @@ const preserveMarkdownNewlines = (markdown: string): string => {
     .join('');
 };
 
-function Editor({ rawContent, onChange, placeholder = "Start typing your note here...", title, onTitleChange, filePath }: EditorProps) {
+function Editor({ rawContent, onChange, placeholder = "Start typing your note here...", title, onTitleChange }: EditorProps) {
+  const { '*': parsedFilePath } = useParams();
+  
   const content = useMemo(() => preserveMarkdownNewlines(rawContent), [rawContent]);
   
   const invalidChars = /[\\/:*?"<>|]/;
@@ -92,7 +94,7 @@ function Editor({ rawContent, onChange, placeholder = "Start typing your note he
       }),
       Indent,
       NewFile.configure({
-        createUrl: (fileName) => filePath + '/' + fileName
+        url: parsedFilePath
       }),
     ],
     content: content, 

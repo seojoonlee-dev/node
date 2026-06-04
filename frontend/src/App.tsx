@@ -377,7 +377,6 @@ function MainWorkspace() {
             onChange={(newContent) => { setContent(newContent); debouncedSave(newContent) }}
             title={fileName ? fileName : "Select or create a file"} 
             onTitleChange={renameFile}
-            filePath={filePath}
           />
         </div>
       </div>
