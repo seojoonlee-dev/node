@@ -1,3 +1,8 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: 'Times New Roman', Times, serif;
 }
@@ -10,6 +15,10 @@ hr {
 a {
   cursor: pointer;
   color: inherit;
+}
+
+a:hover {
+  color: #bcb2ab;
 }
 
 #titleEdit {

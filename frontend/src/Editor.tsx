@@ -16,7 +16,7 @@ interface EditorProps {
   onTitleChange: (value: string) => void;
 }
 
-// this helper function exists so that intentional new lines are cached and showed instead of getting ignored.
+// fix this later
 const preserveMarkdownNewlines = (markdown: string): string => {
   const normalized = markdown.replace(/\r\n/g, '\n');
   const parts = normalized.split(/(```[\s\S]*?```)/g);
@@ -104,6 +104,7 @@ function Editor({ rawContent, onChange, placeholder = "Start typing your note he
       handleClick: (_view, _pos, event) => {
         const target = event.target as HTMLElement;
         
+        // handle links
         if (target.nodeName === 'A' && target.dataset.type === 'new-file') {
           event.preventDefault(); 
           
