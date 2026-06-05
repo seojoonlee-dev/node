@@ -14,6 +14,7 @@ interface EditorProps {
   placeholder?: string;
   title: string;
   onTitleChange: (value: string) => void;
+  createFile: (value?: string) => void;
 }
 
 const preserveMarkdownNewlines = (markdown: string): string => {
@@ -40,11 +41,11 @@ const preserveMarkdownNewlines = (markdown: string): string => {
     .join('');
 };
 
-function Editor({ rawContent, onChange, placeholder = "Start typing your note here...", title, onTitleChange }: EditorProps) {
+function Editor({ rawContent, onChange, placeholder = "Start typing your note here...", title, onTitleChange, createFile }: EditorProps) {
   const { '*': parsedFilePath } = useParams();
   
   const prevFilePath = useRef(parsedFilePath);
-  
+
   const lastSavedContent = useRef(rawContent);
 
   const navigate = useNavigate();
@@ -107,10 +108,11 @@ function Editor({ rawContent, onChange, placeholder = "Start typing your note he
           event.preventDefault(); 
           
           const filename = target.dataset.filename;
-          
+          createFile(filename);
           editor?.commands.blur();
           
           navigate(`${filename}`);
+
           
           return true;
         }

@@ -29,13 +29,19 @@ export const renameFile = async (filePath: string, newTitle: string) => {
   return response.json();
 };
 
-export const createFile = async (currentPath: string) => {
+export const createFile = async (currentPath: string, fileName?: string) => {
   const response = await fetch(`${getServerIp()}/api/create`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ currentPath: currentPath || '' }),
+    body: JSON.stringify({ currentPath: currentPath || '', fileName }), 
   });
-  return response.json();
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to create file");
+  }
+  return data;
 };
 
 export const deleteFile = async (filePath: string) => {

@@ -98,7 +98,7 @@ app.post('/api/save', async (req, res) => {
 });
 
 app.post('/api/create', async (req, res) => {
-  const { currentPath } = req.body;
+  const { currentPath, fileName } = req.body; 
   
   try {
     let baseDir = NOTES_DIR;
@@ -108,33 +108,45 @@ app.post('/api/create', async (req, res) => {
       baseDir = safePath;
     }
 
-    console.log("base directory is" + baseDir);
+    console.log("base directory is " + baseDir);
     
-    let counter = 0;
-    let candidateName = "NewFile";
+    let candidateName = fileName ? fileName.trim() : "NewFile";
+    let finalDir = path.join(baseDir, candidateName);
+    let finalFile = path.join(finalDir, `${candidateName}.md`);
     
-    while (true) {
-      const checkDir = path.join(baseDir, candidateName);
-      const checkFile = path.join(checkDir, `${candidateName}.md`);
+    if (fileName) {
       try {
-        await fs.access(checkFile);
-        counter++;
-        candidateName = `NewFile${counter}`;
+        await fs.access(finalFile);
+        
+        return res.status(409).json({ 
+          success: false, 
+          message: `A file named "${candidateName}" already exists in this location.` 
+        });
       } catch {
-        break;
+      }
+    } else {
+      let counter = 0;
+      while (true) {
+        try {
+          await fs.access(finalFile);
+          counter++;
+          candidateName = `NewFile${counter}`;
+          finalDir = path.join(baseDir, candidateName);
+          finalFile = path.join(finalDir, `${candidateName}.md`);
+        } catch {
+          break;
+        }
       }
     }
-    
-    const finalDir = path.join(baseDir, candidateName);
 
     console.log(`Creating new file at path ${finalDir}`);
-    await fs.mkdir(finalDir, { recursive: true });
     
-    const finalFile = path.join(finalDir, `${candidateName}.md`);
+    await fs.mkdir(finalDir, { recursive: true });
     await fs.writeFile(finalFile, '', 'utf8');
     
     const relativePath = path.relative(NOTES_DIR, finalDir).split(path.sep).join('/');
     res.json({ success: true, filePath: relativePath });
+    
   } catch (error) {
     console.error("Error creating file:", error);
     res.status(500).json({ success: false, message: 'Failed to create file' });

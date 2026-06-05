@@ -220,9 +220,9 @@ function MainWorkspace() {
   }, [filePath, content, navigate, fetchFiles]);
 
   // create
-  const handleCreateFile = useCallback(async (path:string) => {
+  const handleCreateFile = useCallback(async (path:string, filename?:string) => {
     try {
-      const data = await createFile(path);
+      const data = await createFile(path, filename);
       
       if (data.success) {
         cacheRef.current[data.filePath] = '';
@@ -334,6 +334,7 @@ function MainWorkspace() {
             onChange={(newContent) => { setContent(newContent); debouncedSave(newContent) }}
             title={fileName ? fileName : "Select or create a file"} 
             onTitleChange={handleRenameFile}
+            createFile={(filename) => handleCreateFile((parsedFilePath ? parsedFilePath : '/'), filename)}
           />
         </div>
       </div>
