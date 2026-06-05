@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef, type ChangeEvent } from 'react';
+import { useEffect, useState, useRef, type ChangeEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -16,7 +16,6 @@ interface EditorProps {
   onTitleChange: (value: string) => void;
 }
 
-// fix this later
 const preserveMarkdownNewlines = (markdown: string): string => {
   const normalized = markdown.replace(/\r\n/g, '\n');
   const parts = normalized.split(/(```[\s\S]*?```)/g);
@@ -43,12 +42,12 @@ const preserveMarkdownNewlines = (markdown: string): string => {
 
 function Editor({ rawContent, onChange, placeholder = "Start typing your note here...", title, onTitleChange }: EditorProps) {
   const { '*': parsedFilePath } = useParams();
+  
   const prevFilePath = useRef(parsedFilePath);
+  
+  const lastSavedContent = useRef(rawContent);
 
   const navigate = useNavigate();
-  
-  const content = useMemo(() => preserveMarkdownNewlines(rawContent), [rawContent]);
-  
   const invalidChars = /[\\/:*?"<>|]/;
 
   const [value, setTitle] = useState(title);
@@ -98,13 +97,12 @@ function Editor({ rawContent, onChange, placeholder = "Start typing your note he
       Indent,
       NewFile
     ],
-    content: content, 
+    content: preserveMarkdownNewlines(rawContent), 
     contentType: 'markdown',
     editorProps: {
       handleClick: (_view, _pos, event) => {
         const target = event.target as HTMLElement;
         
-        // handle links
         if (target.nodeName === 'A' && target.dataset.type === 'new-file') {
           event.preventDefault(); 
           
@@ -118,29 +116,30 @@ function Editor({ rawContent, onChange, placeholder = "Start typing your note he
       }
     },
     onUpdate: ({ editor }) => {
-      onChange(editor.getMarkdown());
+      const currentMarkdown = editor.getMarkdown();
+      
+      onChange(currentMarkdown);
     },
   });
 
   useEffect(() => {
     if (!editor) return;
     
-    const currentContent = editor.getMarkdown();
     const isFileChange = prevFilePath.current !== parsedFilePath;
 
-    if (isFileChange || (content !== currentContent)) {
-      
-      editor.commands.setContent(content, { 
+    if (isFileChange || (!editor.isFocused && rawContent !== lastSavedContent.current)) {      
+      editor.commands.setContent(preserveMarkdownNewlines(rawContent), { 
         emitUpdate: false,
         contentType: 'markdown'
       });
 
       if (isFileChange) {
-        //clear file history
         prevFilePath.current = parsedFilePath;
       }
+      
+      lastSavedContent.current = rawContent;
     }
-  }, [content, editor, parsedFilePath]);
+  }, [editor, rawContent, parsedFilePath]);
 
   return (
     <div>
