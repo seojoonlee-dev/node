@@ -34,12 +34,23 @@ hr {
   position: relative;
   padding-right: 10px;
   margin-top: 5px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  scrollbar-width: none;
+
+  -ms-overflow-style: none; 
 }
 
 #nodesItems {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  padding-bottom: 200px;
 }
 
 #line {
@@ -75,7 +86,7 @@ hr {
 .node {
   display: flex;
   align-items: center;
-  padding: 2px 10px 2px 6px;
+  padding: 1.5px 10px 1.5px 6px;
   border-radius: 10px;
   position: relative;
   overflow: hidden;
@@ -126,7 +137,6 @@ hr {
   border: 1px solid #FFF0E3;
   border-radius: 12px;
   color: #FFF0E3;
-  padding: 0;
   z-index: 1000;
   padding: 8px 12px;
   
@@ -158,6 +168,5 @@ hr {
   border: none;
   cursor: pointer; 
   color: #FFF0E3;
-  padding: 0;
   width: 10px;
 }
