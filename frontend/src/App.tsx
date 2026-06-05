@@ -109,6 +109,7 @@ function MainWorkspace() {
   const [popupOpen, setPopupOpen] = useState(false);
   const [sideBarOpen, toggleSideBar] = useState(true);
 
+  // sidebar
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem('sidebarWidth');
     return saved ? parseInt(saved, 10) : 200;
@@ -124,6 +125,7 @@ function MainWorkspace() {
     }
   };
   
+  // popup
   useEffect(() => {
     if (popupOpen) {
       const timer = setTimeout(() => setPopupOpen(false), 2000);
@@ -131,6 +133,7 @@ function MainWorkspace() {
     }
   }, [popupOpen]);
 
+  // fetch
   const fetchFiles = useCallback(async () => {
     try {
       const data = await fetchFilesList();
@@ -151,6 +154,7 @@ function MainWorkspace() {
     fetchFiles();
   }, [fetchFiles]);
 
+  // load
   useEffect(() => {
     const handleLoadFile = async () => {
       if (!filePath) {
@@ -182,6 +186,7 @@ function MainWorkspace() {
     handleLoadFile();
   }, [filePath, parsedFilePath]);
 
+  // save
   const handleSaveFile = useCallback(async () => {
     if (!filePath) return;
     
@@ -194,6 +199,7 @@ function MainWorkspace() {
     }
   }, [filePath, content]);
 
+  // rename
   const handleRenameFile = useCallback(async (newTitle: string) => {
     if (!filePath || !newTitle.trim()) return;
 
@@ -213,6 +219,7 @@ function MainWorkspace() {
     }
   }, [filePath, content, navigate, fetchFiles]);
 
+  // create
   const handleCreateFile = useCallback(async (path:string) => {
     try {
       const data = await createFile(path);
@@ -227,6 +234,7 @@ function MainWorkspace() {
     }
   }, [navigate, fetchFiles]);
 
+  // delete
   const handleDeleteFile = useCallback(async () => {
     if (!filePath) {
       alert("No file selected to delete!");
@@ -247,6 +255,7 @@ function MainWorkspace() {
     }
   }, [filePath, fileName, navigate, fetchFiles]);
 
+  // save shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -258,6 +267,7 @@ function MainWorkspace() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleSaveFile]);
 
+  // autosave
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const debouncedSave = useCallback((newContent: string) => {
