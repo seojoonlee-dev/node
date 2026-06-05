@@ -6,6 +6,7 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=production
+    # change ./backend/notes to where you want the note directory to be.
     volumes:
       - ./backend/notes:/app/notes
     restart: always
@@ -15,6 +16,4 @@ services:
     build: ./frontend
     ports:
       - "8080:80"
-    depends_on:
-      - backend
     restart: always
