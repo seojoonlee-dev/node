@@ -52,32 +52,28 @@ const FileList = memo(({ files, onCreate }: { files: string[], onCreate: (path:s
   );
 
   return (
-    <div id="nodesItems">
+    <div className="file-tree">
       {visibleList.map(({ dirPath, name, depth, hasChildren }) => (
         <div key={dirPath} style={{ paddingLeft: depth * 10 }}>
-          <div style={{ backgroundColor: parsedFilePath == dirPath ? "#282828" : "rgba(0,0,0,0)" }} className='node'>
+          <div className={`node ${parsedFilePath === dirPath ? 'is-active' : ''}`}>
             {hasChildren ? (
               <button 
                 onClick={() => setCollapsed(prev => ({ ...prev, [dirPath]: !prev[dirPath] }))}
-                className='expandButton'
+                className="btn-expand"
               >
-                <span style={{
-                  display: 'inline-block',
-                  transition: 'transform 0.1s ease',
-                  transform: collapsed[dirPath] ? 'rotate(0deg)' : 'rotate(90deg)'
-                }}>
+                <span className={`icon-arrow ${collapsed[dirPath] ? 'is-collapsed' : ''}`}>
                   ❯
                 </span>
               </button>
-            ) : <p style={{ width: "10px", cursor: "default" }}>T</p>}
-            <Link to={`/${dirPath}`} style={{ display: "flex", flex: 1, textDecoration: "none" }}>
-              <button className="button">{name}</button>
+            ) : <p className="leaf-spacer">T</p>}
+            <Link to={`/${dirPath}`} className="node-link">
+              <button className="btn-link">{name}</button>
             </Link>
-            <div></div>
-            <button onClick={() => onCreate(dirPath)} id="addButton">+</button> 
+            <button onClick={() => onCreate(dirPath)} className="btn-add">+</button> 
           </div>
         </div>
       ))}
+      <button onClick={() => onCreate('')} className="btn-create">+</button>
     </div>
   );
 });
@@ -235,27 +231,28 @@ function MainWorkspace() {
   }, [navigate, fetchFiles]);
 
   // delete
-  const handleDeleteFile = useCallback(async () => {
-    if (!filePath) {
-      alert("No file selected to delete!");
-      return;
-    }
+  // const handleDeleteFile = useCallback(async () => {
+  //   if (!filePath) {
+  //     alert("No file selected to delete!");
+  //     return;
+  //   }
 
-    const confirmDelete = window.confirm(`Are you sure you want to delete "${fileName}"?`);
-    if (!confirmDelete) return;
+  //   const confirmDelete = window.confirm(`Are you sure you want to delete "${fileName}"?`);
+  //   if (!confirmDelete) return;
 
-    try {
-      await deleteFile(filePath);
-      delete cacheRef.current[filePath];
-      await fetchFiles();
-      setContent('');
-      navigate('/');
-    } catch (error) {
-      console.error('Delete failed:', error);
-    }
-  }, [filePath, fileName, navigate, fetchFiles]);
+  //   try {
+  //     await deleteFile(filePath);
+  //     delete cacheRef.current[filePath];
+  //     await fetchFiles();
+  //     setContent('');
+  //     navigate('/');
+  //   } catch (error) {
+  //     console.error('Delete failed:', error);
+  //   }
+  // }, [filePath, fileName, navigate, fetchFiles]);
 
   // save shortcut
+  
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -288,26 +285,26 @@ function MainWorkspace() {
 
   return (
     <>
-      <div id="view">
-        <header id="header">
-          <button onClick={() => toggleSideBar(!sideBarOpen)} className='headerButton'><img src='/sidebar.png' style={{width: "100%"}} className='headerImage' alt="Toggle Sidebar"/></button>
-          <button onClick={handleSaveFile} className='headerButton'><img src='/save.png' style={{width: "100%"}} className='headerImage' alt="Save File"/></button>
-          <button onClick={handleDeleteFile} className='headerButton'><img src='/delete.png' style={{width: "100%"}} className='headerImage' alt="Delete File"/></button>
-          <button onClick={() => handleCreateFile("")} className='headerButton'><img src='/plus.png' style={{width: "100%"}} className='headerImage' alt="Create File"/></button>
-          <div style={{marginTop: "auto"}} />
-          <button onClick={() => navigate("/settings")} className='headerButton'><img src='/settings.png' style={{width: "100%"}} className='headerImage' alt="Settings"/></button>
-        </header>
-        <div id="nodes" ref={sidebarRef} style={{ width: `${sidebarWidth}px`, display: sideBarOpen ? "flex" : "none" }}>
-            <div className='list'>
-              <h1 style={{ margin: "5px 0px", paddingLeft: "5px" }}>Nodes</h1>
-            
-              <hr id="divider"></hr>
-
+      <div className="l-app">
+        <div className="l-header">
+          <button className="btn-toggle" onClick={() => toggleSideBar(!sideBarOpen)}>
+            <img src='/sidebar.png' alt="Toggle Sidebar" />
+          </button>
+        </div>
+        <div 
+          className={`l-sidebar ${sideBarOpen ? 'is-open' : ''}`}
+          ref={sidebarRef} 
+          style={{ 
+            width: sideBarOpen ? `${sidebarWidth}px` : '0px',
+            opacity: sideBarOpen ? 1 : 0
+          }}
+        >
+            <div className="sidebar-content">
               {loading && <p>Loading files...</p>}
               {error && <p style={{ color: 'red' }}>{error}</p>}
               
               {!loading && !error && files.length === 0 && (
-                  <p>No nodes found. Create a new node!</p>
+                  <p>No notes found. Create a new note!</p>
               )}
 
               {!loading && !error && (
@@ -315,7 +312,7 @@ function MainWorkspace() {
               )}
             </div>
             <div
-              style={{ minWidth: "10px", height: "100%", cursor: "col-resize", position: "absolute", right: "-5px", zIndex: 99 }}
+              className="drag-handle"
               onPointerDown={(e) => {
                 e.currentTarget.setPointerCapture(e.pointerId);
                 document.body.style.userSelect = "none";
@@ -328,7 +325,7 @@ function MainWorkspace() {
               onPointerMove={handlePointerMove}
             />
         </div>
-        <div id="editor">
+        <div className="l-main">
           <Editor 
             rawContent={content} 
             onChange={(newContent) => { setContent(newContent); debouncedSave(newContent) }}
@@ -338,7 +335,7 @@ function MainWorkspace() {
           />
         </div>
       </div>
-      <div className={`popup ${popupOpen ? 'open' : ''}`}>
+      <div className={`popup ${popupOpen ? 'is-open' : ''}`}>
         <div className="popup-content">
           <p>Saved!</p>
         </div>

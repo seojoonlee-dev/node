@@ -1,19 +1,20 @@
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  background-color: #1e1e1e;
+  background-color: #282828;
   color: #FFF0E3;
   font-family: 'Times New Roman', Times, serif;
 }
 
 button {
   font-family: inherit;
-}
-
-button:hover {
+  background: none;
+  border: none;
+  color: inherit;
   cursor: pointer;
 }
 
@@ -21,154 +22,171 @@ hr {
   margin-right: 0;
 }
 
-#view {
-  display: grid;
-  grid-template-columns: auto auto 1fr;
-  grid-template-areas: 
-    "header nodes editor";
-  grid-template-rows: 100vh;
+.l-app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
   overflow: hidden;
+  position: relative;
 }
 
-#nodes {
-  display: flex;
-  grid-area: nodes;
+.l-header {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 98;
+}
+
+.l-sidebar {
   position: relative;
-  padding-right: 10px;
-  margin-top: 5px;
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
   scrollbar-width: none;
-
-  -ms-overflow-style: none; 
+  -ms-overflow-style: none;
+  transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-in-out;
+  white-space: nowrap;
 }
 
-#nodesItems {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding-bottom: 200px;
-}
-
-#line {
-  width: 100%;
-  color: #FFF0E3;
-}
-
-#header {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 6px;
-  grid-area: header;
-}
-
-#divider {
-  width: 100px
-}
-
-#addButton {
+.l-sidebar::-webkit-scrollbar {
   display: none;
-  padding-left: 5px;
-  border: 0;
-  color: #FFF0E3;
-  font-size: 16px;
-  background: 0;
 }
 
-#editor {
-  grid-area: editor;
+.l-main {
+  flex: 1;
+  height: 100vh;
+  padding: 40px 10px 20px 10px;
+}
+
+.sidebar-content {
+  width: 100%;
+  padding: 60px 20px 20px 20px;
+  min-height: 100%;
+  background-color: #1e1e1e;
+  border-right: #FFF0E3 solid 1px;
+}
+
+.drag-handle {
+  display: flex;
+  justify-content: center;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  position: absolute;
+  top: 0;
+  right: -4px;
+  z-index: 99;
+}
+
+.btn-toggle {
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-toggle img {
+  width: 100%;
+}
+
+.file-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .node {
   display: flex;
   align-items: center;
-  padding: 1.5px 10px 1.5px 6px;
-  border-radius: 10px;
+  padding: 4px 10px 4px 6px;
+  border-radius: 6px;
   position: relative;
-  overflow: hidden;
+  transition: background-color 0.2s ease;
 }
 
-.node:hover {
-  background-color: #282828 !important;
-  overflow: visible;
-  max-width: 500px;
-  width: auto;
-  z-index: 100;
+.node:hover,
+.node.is-active {
+  background-color: #282828;
 }
 
-.node:hover #addButton {
+.btn-expand {
+  width: 15px;
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.button {
-  border: 0;
-  background: none;
-  color: #FFF0E3;
+.icon-arrow {
+  display: inline-block;
+  transition: transform 0.1s ease;
+  transform: rotate(90deg);
+}
+
+.icon-arrow.is-collapsed {
+  transform: rotate(0deg);
+}
+
+.leaf-spacer {
+  width: 15px;
+  cursor: default;
+  text-align: center;
+}
+
+.node-link {
+  display: flex;
+  flex: 1;
+  text-decoration: none;
+}
+
+.btn-link {
   padding-left: 5px;
   text-align: left;
-  flex: 1;
+  width: 100%;
 }
 
-.headerButton {
-  width: 42px;
-  height: 42px;
-
-  background: none;
-  border: 0;
-  border-radius: 12px;
-  color: #FFF0E3;
-
-  padding: 8px;
+.btn-add {
+  opacity: 0;
+  pointer-events: none;
+  padding-left: 5px;
+  font-size: 16px;
+  transition: opacity 0.2s ease;
 }
 
-.headerButton:hover {
+.node:hover .btn-add {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.btn-create {
+  width: 100%;
+  padding: 5px;
+  margin-top: 10px;
+  font-size: 16px;
   background-color: #282828;
+  border-radius: 6px;
+  text-align: center;
 }
 
 .popup {
   position: fixed;
-  top: 10px;
+  top: 15px;
   right: 20px;
   background-color: #1e1e1e;
   border: 1px solid #FFF0E3;
-  border-radius: 12px;
-  color: #FFF0E3;
+  border-radius: 8px;
   z-index: 1000;
-  padding: 8px 12px;
-  
+  padding: 8px 16px;
   transform: translateX(150%);
-
-  transition: 
-    transform 0.4s cubic-bezier(0.3, 1, 0.5, 1);
+  transition: transform 0.4s cubic-bezier(0.3, 1, 0.5, 1);
 }
 
-.popup.open {
+.popup.is-open {
   transform: translateX(0);
-
-  transition: 
-    transform 0.4s cubic-bezier(0.3, 1, 0.5, 1);
 }
 
 .popup-content {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.list {
-  width: 100%;
-}
-
-.expandButton {
-  background: none;
-  border: none;
-  cursor: pointer; 
-  color: #FFF0E3;
-  width: 10px;
 }

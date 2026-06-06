@@ -42,11 +42,11 @@ a:hover {
 .tiptap-container {
   display: flex;
   flex-direction: column;
-  padding: 0px 16px 0px 12px;
+  margin: 0px 16px 0px 12px;
   background-color: #282828;
   height: calc(100vh - 22px);
   cursor: text;
-  border-radius: 12px 0px 0px 12px;
+  /* border-radius: 12px 0px 0px 12px; */
   height: 100vh;
 }
 
