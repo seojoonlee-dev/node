@@ -44,9 +44,7 @@ a:hover {
   flex-direction: column;
   margin: 0px 16px 0px 12px;
   background-color: #282828;
-  height: calc(100vh - 22px);
   cursor: text;
-  /* border-radius: 12px 0px 0px 12px; */
   height: 100vh;
 }
 

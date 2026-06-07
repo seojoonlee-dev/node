@@ -36,6 +36,12 @@ hr {
   left: 20px;
   right: 20px;
   z-index: 98;
+
+  display: flex;
+}
+
+.spacer {
+  margin: auto;
 }
 
 .l-sidebar {
@@ -55,8 +61,8 @@ hr {
 
 .l-main {
   flex: 1;
-  height: 100vh;
   padding: 40px 10px 20px 10px;
+  overflow: hidden;
 }
 
 .sidebar-content {
@@ -79,14 +85,20 @@ hr {
   z-index: 99;
 }
 
-.btn-toggle {
-  width: 20px;
+.btn-header {
+  width: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
 }
 
-.btn-toggle img {
+.btn-header:hover {
+  background-color: #282828;
+}
+
+.btn-header img {
   width: 100%;
 }
 
@@ -102,7 +114,7 @@ hr {
   padding: 4px 10px 4px 6px;
   border-radius: 6px;
   position: relative;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.1s ease;
 }
 
 .node:hover,

@@ -339,8 +339,12 @@ function MainWorkspace() {
     <>
       <div className="l-app">
         <div className="l-header">
-          <button className="btn-toggle" onClick={() => toggleSideBar(!sideBarOpen)}>
+          <button className="btn-header" onClick={() => toggleSideBar(!sideBarOpen)}>
             <TintedImage src='/sidebar.png' alt="Toggle Sidebar" />
+          </button>
+          <div className="spacer" />
+          <button className="btn-header" onClick={() => navigate("/settings")}>
+            <TintedImage src='/settings.png' alt="Settings" tintColor='#FFF0E3'/>
           </button>
         </div>
         <div 
