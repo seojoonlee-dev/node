@@ -5,7 +5,6 @@ import { useState, type ChangeEvent } from 'react';
 import './style/Settings.css';
 
 function General() {
-  const navigate = useNavigate();
   const serverIp = localStorage.getItem('serverIp') ? localStorage.getItem('serverIp') : "http://localhost:3001";
   const [value, setTitle] = useState(serverIp);
 
