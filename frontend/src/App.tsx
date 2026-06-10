@@ -5,6 +5,7 @@ import './style/App.css';
 import { TintedImage } from './helpers/TintedImage';
 import { Settings } from './Settings';
 import { fetchFilesList, loadFile, saveFile, renameFile, createFile, deleteFile } from './helpers/Api';
+import { GraphView } from './GraphView';
 
 const FileList = memo(({ files, onCreate, onDelete }: { files: string[], onCreate: (path:string) => void, onDelete: (path:string) => void }) => {
   const { '*': parsedFilePath } = useParams();
@@ -176,6 +177,8 @@ function MainWorkspace() {
       setSidebarWidth(newWidth); 
     }
   };
+
+  const [showGraph, setShowGraph] = useState(false);
   
   // popup
   useEffect(() => {
@@ -352,7 +355,13 @@ function MainWorkspace() {
           <button className="btn-header" onClick={() => navigate("/settings/general")}>
             <TintedImage src='/settings.png' alt="Settings" tintColor='#FFF0E3'/>
           </button>
-          {/* <div className="spacer" /> */}
+          <div className="spacer" />
+          <button className="btn-header" onClick={() => setShowGraph(!showGraph)}>
+            {showGraph ?
+              <TintedImage src='/file.png' alt="editor" /> :
+              <TintedImage src='/graph.png' alt="graph" />
+            }
+          </button>
         </div>
         <div 
           className={`l-sidebar ${sideBarOpen ? 'is-open' : ''}`}
@@ -362,33 +371,43 @@ function MainWorkspace() {
             opacity: sideBarOpen ? 1 : 0
           }}
         >
-            <div className="sidebar-content">
-              {loading && <p>Loading files...</p>}
-              {error && <p style={{ color: 'red' }}>{error}</p>}
-              
-              {!loading && !error && files.length === 0 && (
-                  <p>No notes found. Create a new note!</p>
-              )}
+          <div className="sidebar-content">
+            {loading && <p>Loading files...</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            
+            {!loading && !error && files.length === 0 && (
+                <p>No notes found. Create a new note!</p>
+            )}
 
-              {!loading && !error && (
-                <FileList files={files} onCreate={handleCreateFile} onDelete={handleDeleteFile} />
-              )}
-            </div>
-            <div
-              className="drag-handle"
-              onPointerDown={(e) => {
-                e.currentTarget.setPointerCapture(e.pointerId);
-                document.body.style.userSelect = "none";
-              }}
-              onPointerUp={(e) => {
-                e.currentTarget.releasePointerCapture(e.pointerId);
-                document.body.style.userSelect = "";
-                localStorage.setItem("sidebarWidth", sidebarWidth.toString());
-              }}
-              onPointerMove={handlePointerMove}
-            />
+            {!loading && !error && (
+              <FileList files={files} onCreate={handleCreateFile} onDelete={handleDeleteFile} />
+            )}
+          </div>
+          <div
+            className="drag-handle"
+            onPointerDown={(e) => {
+              e.currentTarget.setPointerCapture(e.pointerId);
+              document.body.style.userSelect = "none";
+            }}
+            onPointerUp={(e) => {
+              e.currentTarget.releasePointerCapture(e.pointerId);
+              document.body.style.userSelect = "";
+              localStorage.setItem("sidebarWidth", sidebarWidth.toString());
+            }}
+            onPointerMove={handlePointerMove}
+          />
         </div>
         <div className="l-main">
+        {showGraph ? (
+          <GraphView 
+            files={files} 
+            onNodeClick={(path) => {
+              const dirPath = path.substring(0, path.lastIndexOf('/'));
+              navigate(`/${dirPath}`);
+              setShowGraph(false);
+            }} 
+          />
+        ) : (
           <Editor 
             rawContent={content} 
             onChange={(newContent) => { setContent(newContent); debouncedSave(newContent) }}
@@ -396,7 +415,8 @@ function MainWorkspace() {
             onTitleChange={handleRenameFile}
             createFile={(filename) => handleCreateFile((parsedFilePath ? parsedFilePath : '/'), filename)}
           />
-        </div>
+        )}
+      </div>
       </div>
       <div className={`popup ${popupOpen ? 'is-open' : ''}`}>
         <div className="popup-content">
