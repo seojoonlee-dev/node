@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
-import { BrowserRouter, Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import Editor from './Editor';
 import './style/App.css';
 import { TintedImage } from './helpers/TintedImage';
@@ -179,6 +179,12 @@ function MainWorkspace() {
   };
 
   const [showGraph, setShowGraph] = useState(false);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    setShowGraph(false);    
+  }, [location]); 
   
   // popup
   useEffect(() => {
