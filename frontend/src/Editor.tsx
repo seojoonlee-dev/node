@@ -159,7 +159,7 @@ function Editor({ rawContent, onChange, placeholder = "Start typing your note he
             onBlur={titleChangeSave} 
             id="titleEdit"
           />
-          <p className='path'>{'/notes/' + parsedFilePath}</p>
+          <p className='path'>{'/Notes/' + parsedFilePath}</p>
         </div>
         <hr />
         <EditorContent editor={editor} />

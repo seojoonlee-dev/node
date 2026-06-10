@@ -4,12 +4,22 @@ import Editor from './Editor';
 import './style/App.css';
 import { TintedImage } from './helpers/TintedImage';
 import { Settings } from './Settings';
-import { fetchFilesList, loadFile, saveFile, renameFile, createFile } from './helpers/Api';
+// Added deleteFile to imports
+import { fetchFilesList, loadFile, saveFile, renameFile, createFile, deleteFile } from './helpers/Api';
 
-const FileList = memo(({ files, onCreate }: { files: string[], onCreate: (path:string) => void }) => {
+const FileList = memo(({ files, onCreate, onDelete }: { files: string[], onCreate: (path:string) => void, onDelete: (path:string) => void }) => {
   const { '*': parsedFilePath } = useParams();
 
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  // Added state to track context menu position and selected file
+  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, path: string } | null>(null);
+
+  // Close context menu when clicking anywhere else
+  useEffect(() => {
+    const closeMenu = () => setContextMenu(null);
+    window.addEventListener('click', closeMenu);
+    return () => window.removeEventListener('click', closeMenu);
+  }, []);
 
   const parsedList = useMemo(() => {
     const parsed = files.map((fullPath) => {
@@ -54,9 +64,16 @@ const FileList = memo(({ files, onCreate }: { files: string[], onCreate: (path:s
   );
 
   return (
-    <div className="file-tree">
+    <div className="file-tree" style={{ position: 'relative' }}>
       {visibleList.map(({ dirPath, name, depth, hasChildren }) => (
-        <div key={dirPath} style={{ paddingLeft: depth * 10 }}>
+        <div 
+          key={dirPath} 
+          style={{ paddingLeft: depth * 10 }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            setContextMenu({ x: e.clientX, y: e.clientY, path: dirPath });
+          }}
+        >
           <div className={`node ${parsedFilePath === dirPath ? 'is-active' : ''}`}>
             {hasChildren ? (
               <button 
@@ -76,6 +93,32 @@ const FileList = memo(({ files, onCreate }: { files: string[], onCreate: (path:s
         </div>
       ))}
       <button onClick={() => onCreate('')} className="btn-create">+</button>
+
+      {contextMenu && (
+        <div className="context-menu" style={{ position: 'fixed', top: contextMenu.y, left: contextMenu.x }}>
+          {/* <p>{}</p> */}
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              navigator.clipboard.writeText(contextMenu.path);
+              setContextMenu(null);
+            }}
+            style={{ padding: '6px 10px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left', color: '#fff' }}
+          >
+            Copy File Path
+          </button>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(contextMenu.path);
+              setContextMenu(null);
+            }}
+            style={{ padding: '6px 10px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left', color: '#ff6b6b' }}
+          >
+            Delete File
+          </button>
+        </div>
+      )}
     </div>
   );
 });
@@ -233,28 +276,31 @@ function MainWorkspace() {
   }, [navigate, fetchFiles]);
 
   // delete
-  // const handleDeleteFile = useCallback(async () => {
-  //   if (!filePath) {
-  //     alert("No file selected to delete!");
-  //     return;
-  //   }
+  const handleDeleteFile = useCallback(async (pathToDelete: string) => {
+    if (!pathToDelete) return;
 
-  //   const confirmDelete = window.confirm(`Are you sure you want to delete "${fileName}"?`);
-  //   if (!confirmDelete) return;
+    const targetFilePath = getFilePath(pathToDelete); 
+    const targetFileName = pathToDelete.split('/').pop() || pathToDelete;
 
-  //   try {
-  //     await deleteFile(filePath);
-  //     delete cacheRef.current[filePath];
-  //     await fetchFiles();
-  //     setContent('');
-  //     navigate('/');
-  //   } catch (error) {
-  //     console.error('Delete failed:', error);
-  //   }
-  // }, [filePath, fileName, navigate, fetchFiles]);
+    const confirmDelete = window.confirm(`Are you sure you want to delete "${targetFileName}"?`);
+    if (!confirmDelete) return;
+
+    try {
+      await deleteFile(targetFilePath);
+      delete cacheRef.current[targetFilePath];
+      await fetchFiles();
+      
+      if (targetFilePath === filePath) {
+        setContent('');
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Delete failed:', error);
+      alert("Couldn't delete: " + error);
+    }
+  }, [filePath, navigate, fetchFiles]);
 
   // save shortcut
-  
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -314,7 +360,7 @@ function MainWorkspace() {
               )}
 
               {!loading && !error && (
-                <FileList files={files} onCreate={handleCreateFile} />
+                <FileList files={files} onCreate={handleCreateFile} onDelete={handleDeleteFile} />
               )}
             </div>
             <div
