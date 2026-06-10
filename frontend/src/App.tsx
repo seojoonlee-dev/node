@@ -7,12 +7,25 @@ import { Settings } from './Settings';
 import { fetchFilesList, loadFile, saveFile, renameFile, createFile, deleteFile } from './helpers/Api';
 import { GraphView, migrateSavedPositions } from './GraphView';
 
-const FileList = memo(({ files, onCreate, onDelete }: { files: string[], onCreate: (path:string) => void, onDelete: (path:string) => void }) => {
+const FileList = memo(({ files, onCreate, onDelete, onRename }: { files: string[], onCreate: (path:string) => void, onDelete: (path:string) => void, onRename: (path:string, newTitle:string) => void }) => {
   const { '*': parsedFilePath } = useParams();
 
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, path: string } | null>(null);
+  const [renaming, setRenaming] = useState<{ path: string, value: string } | null>(null);
   const closeMenu = () => setContextMenu(null);
+
+  const invalidChars = /[\\/:*?"<>|]/;
+
+  const commitRename = () => {
+    if (!renaming) return;
+    const trimmed = renaming.value.trim();
+    const currentName = renaming.path.split('/').pop();
+    if (trimmed && trimmed !== currentName && !invalidChars.test(trimmed)) {
+      onRename(renaming.path, trimmed);
+    }
+    setRenaming(null);
+  };
 
   useEffect(() => {
     window.addEventListener('click', closeMenu);
@@ -97,9 +110,24 @@ const FileList = memo(({ files, onCreate, onDelete }: { files: string[], onCreat
                 </span>
               </button>
             ) : <p className="leaf-spacer">T</p>}
-            <Link to={`/${dirPath}`} className="node-link">
-              <button className="btn-link">{name}</button>
-            </Link>
+            {renaming?.path === dirPath ? (
+              <input
+                className="rename-input"
+                value={renaming.value}
+                autoFocus
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => setRenaming({ path: dirPath, value: e.target.value })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') commitRename();
+                  if (e.key === 'Escape') setRenaming(null);
+                }}
+                onBlur={commitRename}
+              />
+            ) : (
+              <Link to={`/${dirPath}`} className="node-link">
+                <button className="btn-link">{name}</button>
+              </Link>
+            )}
             <button onClick={() => onCreate(dirPath)} className="btn-add">+</button> 
           </div>
         </div>
@@ -119,7 +147,17 @@ const FileList = memo(({ files, onCreate, onDelete }: { files: string[], onCreat
           >
             Copy File Path
           </button>
-          <button 
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setRenaming({ path: contextMenu.path, value: contextMenu.path.split('/').pop() || '' });
+              setContextMenu(null);
+            }}
+            style={{ padding: '6px 10px', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left', color: '#fff' }}
+          >
+            Rename File
+          </button>
+          <button
             onClick={(e) => {
               e.stopPropagation();
               onDelete(contextMenu.path);
@@ -261,26 +299,35 @@ function MainWorkspace() {
   }, [filePath, content]);
 
   // rename
-  const handleRenameFile = useCallback(async (newTitle: string) => {
-    if (!filePath || !newTitle.trim()) return;
+  const handleRenameFile = useCallback(async (dirPath: string | undefined, newTitle: string) => {
+    if (!dirPath || !newTitle.trim()) return;
+    const targetFilePath = getFilePath(dirPath);
 
     try {
-      const data = await renameFile(filePath, newTitle);
-      
+      const data = await renameFile(targetFilePath, newTitle);
+
       if (data.success) {
-        cacheRef.current[data.filePath] = content;
-        if (data.filePath !== filePath) {
-          delete cacheRef.current[filePath];
+        // drop stale cache entries for the note and anything nested under it
+        Object.keys(cacheRef.current).forEach((key) => {
+          if (key === targetFilePath || key.startsWith(dirPath + '/')) {
+            delete cacheRef.current[key];
+          }
+        });
+        if (targetFilePath === filePath) {
+          cacheRef.current[getFilePath(data.filePath)] = content;
         }
-        const oldDirPath = filePath.substring(0, filePath.lastIndexOf('/'));
-        migrateSavedPositions(oldDirPath, data.filePath);
+        migrateSavedPositions(dirPath, data.filePath);
         await fetchFiles();
-        navigate(`/${data.filePath}`);
+        if (parsedFilePath === dirPath) {
+          navigate(`/${data.filePath}`);
+        } else if (parsedFilePath && parsedFilePath.startsWith(dirPath + '/')) {
+          navigate(`/${data.filePath}${parsedFilePath.slice(dirPath.length)}`);
+        }
       }
     } catch (error) {
       alert("Couldn't rename: " + error);
     }
-  }, [filePath, content, navigate, fetchFiles]);
+  }, [filePath, content, parsedFilePath, navigate, fetchFiles]);
 
   // create
   const handleCreateFile = useCallback(async (path:string, filename?:string) => {
@@ -388,7 +435,7 @@ function MainWorkspace() {
             )}
 
             {!loading && !error && (
-              <FileList files={files} onCreate={handleCreateFile} onDelete={handleDeleteFile} />
+              <FileList files={files} onCreate={handleCreateFile} onDelete={handleDeleteFile} onRename={handleRenameFile} />
             )}
           </div>
           <div
@@ -419,8 +466,8 @@ function MainWorkspace() {
           <Editor 
             rawContent={content} 
             onChange={(newContent) => { setContent(newContent); debouncedSave(newContent) }}
-            title={fileName ? fileName : "Select or create a file"} 
-            onTitleChange={handleRenameFile}
+            title={fileName ? fileName : "Select or create a file"}
+            onTitleChange={(newTitle) => handleRenameFile(parsedFilePath, newTitle)}
             createFile={(filename) => handleCreateFile((parsedFilePath ? parsedFilePath : '/'), filename)}
           />
         )}

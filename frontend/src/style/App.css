@@ -162,6 +162,21 @@ hr {
   text-align: left;
   width: 100%;
   display: block;
+  font-size: 14px;
+}
+
+.rename-input {
+  flex: 1;
+  min-width: 0;
+  margin: -1px 0;
+  padding: 0 0 0 4px;
+  background: transparent;
+  border: 1px solid #6e6e6e;
+  border-radius: 2px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
 }
 
 .btn-add {
@@ -171,7 +186,6 @@ hr {
   flex-shrink: 0;
   font-weight: bold;
   font-family: 'Times New Roman', Times, serif;
-  transform: translateY(-1px);
 }
 
 .node:hover .btn-add {
