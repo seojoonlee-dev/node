@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { ReactFlow, useNodesState, type Node } from '@xyflow/react';
+import { ReactFlow, useNodesState, type Node, type Viewport } from '@xyflow/react';
 import { getLayoutedElements } from './helpers/GraphLayout';
 import '@xyflow/react/dist/style.css';
 import './style/Graph.css';
@@ -10,6 +10,16 @@ interface GraphViewProps {
 }
 
 const POSITIONS_KEY = 'graphNodePositions';
+const VIEWPORT_KEY = 'graphViewport';
+
+function loadSavedViewport(): Viewport | null {
+  try {
+    const raw = localStorage.getItem(VIEWPORT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 function loadSavedPositions(): Record<string, { x: number; y: number }> {
   try {
@@ -65,6 +75,13 @@ export const GraphView: React.FC<GraphViewProps> = ({ files, onNodeClick }) => {
     }
   };
 
+  // read once on mount; a remount restores the last viewport
+  const savedViewport = useMemo(() => loadSavedViewport(), []);
+
+  const handleMoveEnd = (_event: unknown, viewport: Viewport) => {
+    localStorage.setItem(VIEWPORT_KEY, JSON.stringify(viewport));
+  };
+
   const handleNodeDragStop = () => {
     const positions: Record<string, { x: number; y: number }> = {};
     nodes.forEach((node) => {
@@ -81,7 +98,9 @@ export const GraphView: React.FC<GraphViewProps> = ({ files, onNodeClick }) => {
         onNodesChange={onNodesChange}
         onNodeClick={handleNodeClick}
         onNodeDragStop={handleNodeDragStop}
-        fitView
+        onMoveEnd={handleMoveEnd}
+        defaultViewport={savedViewport ?? undefined}
+        fitView={!savedViewport}
         nodesConnectable={false}
         nodesDraggable={true}
         proOptions={{hideAttribution: true}}

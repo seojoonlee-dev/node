@@ -215,13 +215,25 @@ function MainWorkspace() {
     }
   };
 
-  const [showGraph, setShowGraph] = useState(false);
+  // graph/editor mode
+  const [showGraph, setShowGraph] = useState(() => localStorage.getItem('showGraph') === 'true');
+
+  const updateShowGraph = useCallback((value: boolean) => {
+    setShowGraph(value);
+    localStorage.setItem('showGraph', String(value));
+  }, []);
 
   const location = useLocation();
+  const prevLocationRef = useRef(location);
 
   useEffect(() => {
-    setShowGraph(false);    
-  }, [location]); 
+    // only drop out of graph mode on an actual navigation,
+    // not on the initial mount (which would wipe the restored mode)
+    if (prevLocationRef.current !== location) {
+      prevLocationRef.current = location;
+      updateShowGraph(false);
+    }
+  }, [location, updateShowGraph]);
   
   // popup
   useEffect(() => {
@@ -410,7 +422,7 @@ function MainWorkspace() {
             <TintedImage src='/settings.png' alt="Settings" tintColor='#FFF0E3'/>
           </button>
           <div className="spacer" />
-          <button className="btn-header" onClick={() => setShowGraph(!showGraph)}>
+          <button className="btn-header" onClick={() => updateShowGraph(!showGraph)}>
             {showGraph ?
               <TintedImage src='/file.png' alt="editor" /> :
               <TintedImage src='/graph.png' alt="graph" />
@@ -458,8 +470,8 @@ function MainWorkspace() {
             onNodeClick={(path) => {
               const dirPath = path.substring(0, path.lastIndexOf('/'));
               navigate(`/${dirPath}`);
-              setShowGraph(false);
-            }} 
+              updateShowGraph(false);
+            }}
           />
         ) : (
           <Editor 
