@@ -292,10 +292,10 @@ function MainWorkspace() {
           <button className="btn-header" onClick={() => toggleSideBar(!sideBarOpen)}>
             <TintedImage src='/sidebar.png' alt="Toggle Sidebar" />
           </button>
-          <div className="spacer" />
           <button className="btn-header" onClick={() => navigate("/settings/general")}>
             <TintedImage src='/settings.png' alt="Settings" tintColor='#FFF0E3'/>
           </button>
+          {/* <div className="spacer" /> */}
         </div>
         <div 
           className={`l-sidebar ${sideBarOpen ? 'is-open' : ''}`}
@@ -354,7 +354,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/settings/*" element={<Settings />} />
+        <Route path="/settings/*" element={<Settings to={'/'} />} />
         <Route path="/*" element={<MainWorkspace />} />
       </Routes>
     </BrowserRouter>

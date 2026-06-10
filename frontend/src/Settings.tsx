@@ -41,24 +41,13 @@ function Theme() {
   )
 }
 
-function SettingsTabbar() {
-  const { '*': setting } = useParams();
-  return (
-    <div>
-      <div className='settings-tabbar'>
-        <Link to={`/settings/general`} className={`settings-link ${setting === "general" ? 'is-active': ''}`}>
-          <button className="btn-tabbar">General</button>
-        </Link>
-        <Link to={`/settings/theme`} className={`settings-link ${setting === "theme" ? 'is-active': ''}`}>
-          <button className="btn-tabbar">Theme</button>
-        </Link>
-      </div>
-    </div>
-  );
+
+interface SettingsProps {
+  to:string;
 }
 
 
-export function Settings() {
+export function Settings({to}: SettingsProps) {
   const { '*': setting } = useParams();
   const navigate = useNavigate();
 
@@ -71,12 +60,21 @@ export function Settings() {
     <>
       <div className="l-app" id="settings-app">
         <div className="l-header">
-          <button className="btn-header" onClick={() => navigate("/")}>
+          <button className="btn-header" onClick={() => {navigate(to); console.log(to);}}>
             <TintedImage src='/back.png' alt="Toggle Sidebar" />
           </button>
           <h2 className='header-title'>Settings</h2>
         </div>
-        <SettingsTabbar />
+        <div>
+      <div className='settings-tabbar'>
+          <Link to={`/settings/general`} className={`settings-link ${setting === "general" ? 'is-active': ''}`}>
+            <button className="btn-tabbar">General</button>
+          </Link>
+          <Link to={`/settings/theme`} className={`settings-link ${setting === "theme" ? 'is-active': ''}`}>
+            <button className="btn-tabbar">Theme</button>
+          </Link>
+        </div>
+      </div>
         <div className='settings-main'>
           <h1 className='main-title'>{capitalizeFirstLetter(setting)}</h1>
           {setting === "general" ? <General /> : <Theme />}

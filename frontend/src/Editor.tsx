@@ -151,13 +151,16 @@ function Editor({ rawContent, onChange, placeholder = "Start typing your note he
   return (
     <div>
       <div className="tiptap-container">
-        <input 
-          type="text" 
-          value={value} 
-          onChange={titleChange} 
-          onBlur={titleChangeSave} 
-          id="titleEdit"
-        />
+        <div className='title'>
+          <input 
+            type="text" 
+            value={value} 
+            onChange={titleChange} 
+            onBlur={titleChangeSave} 
+            id="titleEdit"
+          />
+          <p className='path'>{'/notes/' + parsedFilePath}</p>
+        </div>
         <hr />
         <EditorContent editor={editor} />
       </div>
