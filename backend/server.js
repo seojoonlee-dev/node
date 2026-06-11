@@ -74,7 +74,7 @@ app.get('/api/load', async (req, res) => {
       res.json({ success: true, content });
     } catch (error) {
       if (error.code === 'ENOENT') {
-        return res.json({ success: true, content: '' });
+        return res.status(404).json({ success: false, message: 'File not found' });
       }
       throw error;
     }
