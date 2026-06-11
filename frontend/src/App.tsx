@@ -397,7 +397,9 @@ function MainWorkspace() {
       if (data.success) {
         cacheRef.current[data.filePath] = '';
         await fetchFiles();
-        navigate(`/${data.filePath}`); 
+        navigate(`/${data.filePath}`);
+      } else if (data.filePath) {
+        navigate(`/${data.filePath}`);
       }
     } catch (error) {
       console.error('Create failed:', error);

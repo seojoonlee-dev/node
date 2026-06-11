@@ -51,8 +51,8 @@ export const createFile = async (currentPath: string, fileName?: string) => {
   });
   
   const data = await response.json();
-  
-  if (!response.ok) {
+
+  if (!response.ok && response.status !== 409) {
     throw new Error(data.message || "Failed to create file");
   }
   return data;

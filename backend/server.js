@@ -121,10 +121,11 @@ app.post('/api/create', async (req, res) => {
     if (fileName) {
       try {
         await fs.access(finalFile);
-        
-        return res.status(409).json({ 
-          success: false, 
-          message: `A file named "${candidateName}" already exists in this location.` 
+
+        return res.status(409).json({
+          success: false,
+          message: `A file named "${candidateName}" already exists in this location.`,
+          filePath: path.relative(NOTES_DIR, finalDir).split(path.sep).join('/')
         });
       } catch {
       }
