@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
-import { ReactFlow, useNodesState, type Node, type Viewport } from '@xyflow/react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { ReactFlow, useNodesState, SelectionMode, Panel, type Node, type Viewport, type ReactFlowInstance } from '@xyflow/react';
 import { getLayoutedElements } from './helpers/GraphLayout';
+import { TintedImage } from './helpers/TintedImage';
 import '@xyflow/react/dist/style.css';
 import './style/Graph.css';
 
@@ -75,7 +76,6 @@ export const GraphView: React.FC<GraphViewProps> = ({ files, onNodeClick }) => {
     }
   };
 
-  // read once on mount; a remount restores the last viewport
   const savedViewport = useMemo(() => loadSavedViewport(), []);
 
   const handleMoveEnd = (_event: unknown, viewport: Viewport) => {
@@ -90,9 +90,20 @@ export const GraphView: React.FC<GraphViewProps> = ({ files, onNodeClick }) => {
     localStorage.setItem(POSITIONS_KEY, JSON.stringify(positions));
   };
 
+  const instanceRef = useRef<ReactFlowInstance | null>(null);
+
+  const handleResetPositions = () => {
+    localStorage.removeItem(POSITIONS_KEY);
+    const { nodes: freshNodes } = getLayoutedElements(files);
+    setNodes(freshNodes);
+
+    requestAnimationFrame(() => instanceRef.current?.fitView());
+  };
+
   return (
     <div className="graph-view">
       <ReactFlow
+        onInit={(instance) => { instanceRef.current = instance; }}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
@@ -103,8 +114,16 @@ export const GraphView: React.FC<GraphViewProps> = ({ files, onNodeClick }) => {
         fitView={!savedViewport}
         nodesConnectable={false}
         nodesDraggable={true}
+        selectionOnDrag
+        selectionMode={SelectionMode.Partial}
+        panOnDrag={[2]}
         proOptions={{hideAttribution: true}}
       >
+        <Panel position="bottom-right">
+          <button className= "btn-header" id="btn-reset" onClick={handleResetPositions}>
+            <TintedImage src='reset.png' alt='reset'></TintedImage>
+          </button>
+        </Panel>
       </ReactFlow>
     </div>
   );

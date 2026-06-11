@@ -9,14 +9,6 @@ export function getLayoutedElements(files: string[]) {
   const edges: Edge[] = [];
   const edgeSet = new Set<string>();
 
-  nodesMap.set('__root__', {
-    id: '__root__',
-    data: { label: 'Notes' },
-    position: { x: 0, y: 0 },
-    type: 'input',
-    className: 'graph-node',
-  });
-
   files.forEach((fullPath) => {
     const noExtPath = fullPath.replace(/\.[^/.]+$/, '');
     const parts = noExtPath.split('/');
@@ -28,35 +20,39 @@ export function getLayoutedElements(files: string[]) {
     let currentPath = '';
 
     parts.forEach((part, index) => {
-      const parentPath = currentPath || '__root__';
+      const parentPath = currentPath;
       currentPath = currentPath ? `${currentPath}/${part}` : part;
-      
+
       const isFinalNode = index === parts.length - 1;
 
       if (!nodesMap.has(currentPath)) {
         nodesMap.set(currentPath, {
           id: currentPath,
-          data: { 
-            label: `${part}`, 
-            filePath: isFinalNode ? fullPath : undefined 
+          data: {
+            label: `${part}`,
+            filePath: isFinalNode ? fullPath : undefined
           },
           position: { x: 0, y: 0 },
+          // top-level notes are roots: no incoming edge, so no target handle
+          type: index === 0 ? 'input' : undefined,
           className: 'graph-node',
         });
       } else if (isFinalNode) {
         nodesMap.get(currentPath)!.data.filePath = fullPath;
       }
 
-      const edgeId = `edge-${parentPath}-${currentPath}`;
-      if (!edgeSet.has(edgeId) && currentPath !== '__root__') {
-        edgeSet.add(edgeId);
-        edges.push({
-          id: edgeId,
-          source: parentPath,
-          target: currentPath,
-          type: 'bezier',
-          className: 'graph-edge',
-        });
+      if (index > 0) {
+        const edgeId = `edge-${parentPath}-${currentPath}`;
+        if (!edgeSet.has(edgeId)) {
+          edgeSet.add(edgeId);
+          edges.push({
+            id: edgeId,
+            source: parentPath,
+            target: currentPath,
+            type: 'bezier',
+            className: 'graph-edge',
+          });
+        }
       }
     });
   });
@@ -77,7 +73,7 @@ export function getLayoutedElements(files: string[]) {
 
   dagre.layout(dagreGraph);
 
-  const layoutedNodes = nodes.map((node) => {
+  const layoutedNodes: Node[] = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
 
     return {

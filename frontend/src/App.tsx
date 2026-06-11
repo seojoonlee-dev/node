@@ -215,7 +215,6 @@ function MainWorkspace() {
     }
   };
 
-  // graph/editor mode
   const [showGraph, setShowGraph] = useState(() => localStorage.getItem('showGraph') === 'true');
 
   const updateShowGraph = useCallback((value: boolean) => {
@@ -227,8 +226,6 @@ function MainWorkspace() {
   const prevLocationRef = useRef(location);
 
   useEffect(() => {
-    // only drop out of graph mode on an actual navigation,
-    // not on the initial mount (which would wipe the restored mode)
     if (prevLocationRef.current !== location) {
       prevLocationRef.current = location;
       updateShowGraph(false);
@@ -318,7 +315,6 @@ function MainWorkspace() {
       const data = await renameFile(targetFilePath, newTitle);
 
       if (data.success) {
-        // drop stale cache entries for the note and anything nested under it
         Object.keys(cacheRef.current).forEach((key) => {
           if (key === targetFilePath || key.startsWith(dirPath + '/')) {
             delete cacheRef.current[key];

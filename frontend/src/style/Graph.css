@@ -15,3 +15,12 @@
 .graph-edge .react-flow__edge-path {
   stroke: #5f5f5f;
 }
+
+.react-flow__selection {
+  background: rgba(255, 240, 227, 0.06);
+  border: 1px dashed #FFF0E3;
+}
+
+.react-flow__node.graph-node.selected {
+  border-style: dashed;
+}
