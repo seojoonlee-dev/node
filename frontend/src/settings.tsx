@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { TintedImage } from './helpers/TintedImage';
+import { TintedImage } from './helpers/tintedImage';
 import { Link, useParams } from 'react-router-dom';
 import { useState, type ChangeEvent } from 'react';
-import './style/Settings.css';
+import './style/settings.css';
 
 function General() {
   const serverIp = localStorage.getItem('serverIp') ? localStorage.getItem('serverIp') : "http://localhost:3001";

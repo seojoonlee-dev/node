@@ -4,9 +4,9 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Markdown } from '@tiptap/markdown';
-import { Indent } from './extensions/Indent';
-import { NewFile } from './extensions/NewFile';
-import './style/Editor.css';
+import { Indent } from './extensions/indent';
+import { NewFile } from './extensions/newFile';
+import './style/editor.css';
 
 interface EditorProps {
   rawContent: string;

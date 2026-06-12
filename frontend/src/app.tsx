@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { BrowserRouter, Routes, Route, Link, useParams, useNavigate, useLocation } from 'react-router-dom';
-import Editor from './Editor';
-import './style/App.css';
-import { TintedImage } from './helpers/TintedImage';
-import { Settings } from './Settings';
-import { fetchFilesList, loadFile, saveFile, saveFileOnUnload, renameFile, createFile, deleteFile } from './helpers/Api';
-import { ContextMenu } from './helpers/ContextMenu';
+import Editor from './editor';
+import './style/app.css';
+import { TintedImage } from './helpers/tintedImage';
+import { Settings } from './settings';
+import { fetchFilesList, loadFile, saveFile, saveFileOnUnload, renameFile, createFile, deleteFile } from './helpers/api';
+import { ContextMenu } from './helpers/contextMenu';
 import { toFilePath, toDirPath, nameOf, validateRename } from './helpers/paths';
 import { migrateSavedPositions } from './helpers/graphStorage';
-import { GraphView } from './GraphView';
+import { GraphView } from './graphView';
 
 const FileList = memo(({ files, onCreate, onDelete, onRename }: { files: string[], onCreate: (path:string) => void, onDelete: (path:string) => void, onRename: (path:string, newTitle:string) => void }) => {
   const { '*': parsedFilePath } = useParams();
