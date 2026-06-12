@@ -11,7 +11,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '100mb' }));
 
 const NOTES_DIR = path.join(__dirname, 'notes');
 const INVALID_NAME_CHARS = /[\\/:*?"<>|]/;
