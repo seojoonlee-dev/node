@@ -108,8 +108,6 @@ app.post('/api/create', async (req, res) => {
       const safePath = getSafePath(currentPath);
       baseDir = safePath;
     }
-
-    console.log("base directory is " + baseDir);
     
     let candidateName = fileName ? fileName.trim() : "NewFile";
     if (fileName && (!candidateName || INVALID_NAME_CHARS.test(candidateName))) {
@@ -144,8 +142,6 @@ app.post('/api/create', async (req, res) => {
       }
     }
 
-    console.log(`Creating new file at path ${finalDir}`);
-    
     await fs.mkdir(finalDir, { recursive: true });
     await fs.writeFile(finalFile, '', 'utf8');
     

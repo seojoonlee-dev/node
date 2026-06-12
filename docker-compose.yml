@@ -1,6 +1,6 @@
 services:
   backend:
-    container_name: node-text-edit-backend
+    container_name: graphwrite-backend
     build: ./backend
     ports:
       - "3001:3001"
@@ -12,7 +12,7 @@ services:
     restart: always
 
   frontend:
-    container_name: node-text-edit-frontend
+    container_name: graphwrite-frontend
     build: ./frontend
     ports:
       - "8080:80"
