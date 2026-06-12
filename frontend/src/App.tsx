@@ -6,6 +6,7 @@ import './style/App.css';
 import { TintedImage } from './helpers/TintedImage';
 import { Settings } from './Settings';
 import { fetchFilesList, loadFile, saveFile, saveFileOnUnload, renameFile, createFile, deleteFile } from './helpers/Api';
+import { ContextMenu } from './helpers/ContextMenu';
 import { GraphView, migrateSavedPositions } from './GraphView';
 
 const FileList = memo(({ files, onCreate, onDelete, onRename }: { files: string[], onCreate: (path:string) => void, onDelete: (path:string) => void, onRename: (path:string, newTitle:string) => void }) => {
@@ -27,25 +28,6 @@ const FileList = memo(({ files, onCreate, onDelete, onRename }: { files: string[
     }
     setRenaming(null);
   };
-
-  useEffect(() => {
-    window.addEventListener('click', closeMenu);
-    return () => window.removeEventListener('click', closeMenu);
-  }, [closeMenu]);
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        closeMenu();
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [closeMenu]);
 
   const parsedList = useMemo(() => {
     const parsed = files.map((fullPath) => {
@@ -136,38 +118,14 @@ const FileList = memo(({ files, onCreate, onDelete, onRename }: { files: string[
       <button onClick={() => onCreate('')} className="btn-create">+</button>
 
       {contextMenu && (
-        <div className="context-menu" style={{ top: contextMenu.y, left: contextMenu.x }}>
-          <button
-            className="context-menu-item"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigator.clipboard.writeText(contextMenu.path);
-              setContextMenu(null);
-            }}
-          >
-            Copy File Path
-          </button>
-          <button
-            className="context-menu-item"
-            onClick={(e) => {
-              e.stopPropagation();
-              setRenaming({ path: contextMenu.path, value: contextMenu.path.split('/').pop() || '' });
-              setContextMenu(null);
-            }}
-          >
-            Rename File
-          </button>
-          <button
-            className="context-menu-item is-danger"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(contextMenu.path);
-              setContextMenu(null);
-            }}
-          >
-            Delete File
-          </button>
-        </div>
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          path={contextMenu.path}
+          onClose={closeMenu}
+          onRename={(path) => setRenaming({ path, value: path.split('/').pop() || '' })}
+          onDelete={onDelete}
+        />
       )}
     </div>
   );
@@ -517,8 +475,8 @@ function MainWorkspace() {
         </div>
         <div className="l-main">
         {showGraph ? (
-          <GraphView 
-            files={files} 
+          <GraphView
+            files={files}
             onNodeClick={(path) => {
               const dirPath = path.substring(0, path.lastIndexOf('/'));
               withViewTransition(() => {
@@ -526,6 +484,8 @@ function MainWorkspace() {
                 updateShowGraph(false);
               });
             }}
+            onNodeRename={handleRenameFile}
+            onNodeDelete={handleDeleteFile}
           />
         ) : notFound ? (
           <div className="not-found">

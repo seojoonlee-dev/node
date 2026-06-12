@@ -30,11 +30,11 @@ export function getLayoutedElements(files: string[]) {
           id: currentPath,
           data: {
             label: `${part}`,
-            filePath: isFinalNode ? fullPath : undefined
+            filePath: isFinalNode ? fullPath : undefined,
+            isRoot: index === 0,
           },
           position: { x: 0, y: 0 },
-          // top-level notes are roots: no incoming edge, so no target handle
-          type: index === 0 ? 'input' : undefined,
+          type: 'fileNode',
           className: 'graph-node',
         });
       } else if (isFinalNode) {

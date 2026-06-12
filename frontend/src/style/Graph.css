@@ -10,6 +10,25 @@
   border: 1px solid #FFF0E3;
   border-radius: 6px;
   padding: 8px;
+  width: 150px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.graph-node-rename {
+  display: block;
+  width: calc(100% + 2px);
+  margin: -1px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid #6e6e6e;
+  border-radius: 2px;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  text-align: center;
+  outline: none;
 }
 
 .graph-edge .react-flow__edge-path {
