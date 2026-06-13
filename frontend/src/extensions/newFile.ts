@@ -27,27 +27,12 @@ export const NewFile = Mark.create({
     return ['a', mergeAttributes(HTMLAttributes, { 'data-type': 'new-file' }), 0];
   },
 
-  markdownTokenizer: {
-    name: 'newFile',
-    level: 'inline',
-    tokenize: (src, _tokens, lexer) => {
-      const match = /^\[\[([^\]]+)\]\]/.exec(src)
-      if (!match) return undefined
-      
-      return {
-        type: 'newFile',
-        raw: match[0],
-        text: match[1],
-        tokens: lexer.inlineTokens(match[1]),
-      }
-    },
-  },
-
-  parseMarkdown: (token, helpers) => {
-    const content = helpers.parseInline(token.tokens || [])
-
-    return helpers.applyMark('newFile', content, { filename: token.text }) 
-  },
+  // We intentionally do NOT register a `markdownTokenizer` here.
+  // A custom inline tokenizer corrupts marked's inline lexer state: once an
+  // ordered list is parsed, every following heading/paragraph loses its text
+  // on load (renders as empty <br>). This is a @tiptap/markdown/marked bug
+  // (still present in 3.26.1). Without the tokenizer, markdown parses cleanly;
+  // `[[..]]` links are still created while typing via addInputRules below.
 
   renderMarkdown: (mark, helpers) => {
     const content = helpers.renderChildren(mark)
