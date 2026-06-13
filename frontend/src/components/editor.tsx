@@ -17,30 +17,6 @@ interface EditorProps {
   createFile: (value?: string) => void;
 }
 
-const preserveMarkdownNewlines = (markdown: string): string => {
-  const normalized = markdown.replace(/\r\n/g, '\n');
-  const parts = normalized.split(/(```[\s\S]*?```)/g);
-
-  return parts
-    .map((part) => {
-      // ignore code blocks
-      if (part.startsWith('```')) {
-        return part;
-      }
-      
-      return part.replace(/\n{3,}/g, (match) => {
-        const emptyParagraphsCount = Math.floor((match.length - 2) / 2);
-        
-        if (emptyParagraphsCount <= 0) return '\n\n';
-        
-        const emptyParagraphsHTML = Array(emptyParagraphsCount).fill('<p></p>').join('\n');
-        
-        return `\n\n${emptyParagraphsHTML}\n\n`;
-      });
-    })
-    .join('');
-};
-
 function Editor({ rawContent, onChange, placeholder = "Start typing your note here...", title, onTitleChange, createFile }: EditorProps) {
   const { '*': parsedFilePath } = useParams();
   
@@ -100,7 +76,7 @@ function Editor({ rawContent, onChange, placeholder = "Start typing your note he
       Indent,
       NewFile
     ],
-    content: preserveMarkdownNewlines(rawContent), 
+    content: rawContent,
     contentType: 'markdown',
     editorProps: {
       handleClick: (_view, _pos, event) => {
@@ -134,7 +110,7 @@ function Editor({ rawContent, onChange, placeholder = "Start typing your note he
     const isFileChange = prevFilePath.current !== parsedFilePath;
 
     if (isFileChange || (!editor.isFocused && rawContent !== lastSavedContent.current)) {      
-      editor.commands.setContent(preserveMarkdownNewlines(rawContent), { 
+      editor.commands.setContent(rawContent, {
         emitUpdate: false,
         contentType: 'markdown'
       });

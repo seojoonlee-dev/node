@@ -4,6 +4,8 @@ import { fetchFilesList, loadFile, saveFile, saveFileOnUnload, renameFile, creat
 import { toFilePath, nameOf } from '../helpers/paths';
 import { migrateSavedPositions } from '../helpers/graphStorage';
 
+const PENDING_SAVE_KEY = 'pendingSave';
+
 export function useNotes() {
   const { '*': parsedFilePath } = useParams();
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ export function useNotes() {
   const cacheRef = useRef<Record<string, string>>({});
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingSaveRef = useRef<{ filePath: string; content: string } | null>(null);
+  const inFlightSaveRef = useRef<Promise<void> | null>(null);
 
   // fetch
   const fetchFiles = useCallback(async () => {
@@ -41,8 +44,41 @@ export function useNotes() {
     fetchFiles();
   }, [fetchFiles]);
 
+  // autosave
+  const flushPendingSave = useCallback(async () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = null;
+    const pending = pendingSaveRef.current;
+    pendingSaveRef.current = null;
+    if (pending) {
+      inFlightSaveRef.current = saveFile(pending.filePath, pending.content)
+        .then(() => { cacheRef.current[pending.filePath] = pending.content; })
+        .finally(() => { inFlightSaveRef.current = null; });
+    }
+    if (inFlightSaveRef.current) await inFlightSaveRef.current;
+  }, []);
+
   // load
   useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(PENDING_SAVE_KEY);
+      if (!raw) return;
+      sessionStorage.removeItem(PENDING_SAVE_KEY);
+      const pending = JSON.parse(raw);
+      if (pending && typeof pending.filePath === 'string' && typeof pending.content === 'string') {
+        pendingSaveRef.current = pending;
+        cacheRef.current[pending.filePath] = pending.content;
+        flushPendingSave().catch(err => console.error('Autosave failed:', err));
+      }
+    } catch {
+
+    }
+  }, [flushPendingSave]);
+
+  // load
+  useEffect(() => {
+    let cancelled = false;
+
     const handleLoadFile = async () => {
       setNotFound(false);
       if (!filePath) {
@@ -59,7 +95,9 @@ export function useNotes() {
       }
 
       try {
+        await flushPendingSave();
         const data = await loadFile(filePath);
+        if (cancelled) return;
         if (data.success) {
           if (cacheRef.current[filePath] !== data.content) {
             setContent(data.content);
@@ -76,19 +114,8 @@ export function useNotes() {
     };
 
     handleLoadFile();
-  }, [filePath, parsedFilePath]);
-
-  // autosave
-  const flushPendingSave = useCallback(async () => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = null;
-    const pending = pendingSaveRef.current;
-    pendingSaveRef.current = null;
-    if (pending) {
-      await saveFile(pending.filePath, pending.content);
-      cacheRef.current[pending.filePath] = pending.content;
-    }
-  }, []);
+    return () => { cancelled = true; };
+  }, [filePath, parsedFilePath, flushPendingSave]);
 
   const discardPendingSave = useCallback((dirPath: string) => {
     const pending = pendingSaveRef.current;
@@ -102,6 +129,7 @@ export function useNotes() {
   const debouncedSave = useCallback((newContent: string) => {
     if (!filePath) return;
     pendingSaveRef.current = { filePath, content: newContent };
+    cacheRef.current[filePath] = newContent;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       flushPendingSave().catch(err => console.error('Autosave failed:', err));
@@ -113,7 +141,7 @@ export function useNotes() {
     debouncedSave(newContent);
   }, [debouncedSave]);
 
-  // save; returns whether the save happened so the caller can show feedback
+  // save
   const saveCurrentFile = useCallback(async (): Promise<boolean> => {
     if (!filePath) return false;
 
@@ -213,6 +241,11 @@ export function useNotes() {
       if (!pending) return;
       pendingSaveRef.current = null;
       if (debounceRef.current) clearTimeout(debounceRef.current);
+      try {
+        sessionStorage.setItem(PENDING_SAVE_KEY, JSON.stringify(pending));
+      } catch {
+
+      }
       saveFileOnUnload(pending.filePath, pending.content);
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
