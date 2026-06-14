@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { TintedImage } from './tintedImage';
 import { Link, useParams } from 'react-router-dom';
 import { useState, type ChangeEvent } from 'react';
+import { getStartupNote, setStartupNote } from '../helpers/startupNote';
 import '../style/settings.css';
 
 // The demo stores notes in the browser (IndexedDB) and has no backend, so the
@@ -11,6 +12,7 @@ const isDemo = import.meta.env.VITE_STORAGE === 'indexeddb';
 function General() {
   const serverIp = localStorage.getItem('serverIp') ? localStorage.getItem('serverIp') : "http://localhost:3001";
   const [value, setTitle] = useState(serverIp);
+  const [startup, setStartup] = useState(getStartupNote());
 
   const saveServer = (event: ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
@@ -24,20 +26,34 @@ function General() {
     }
   };
 
-  if (isDemo) {
-    return (
-      <div className='settings-view'>
-        <p>This is a demo. Your notes are saved locally in this browser.</p>
-      </div>
-    );
-  }
+  const changeStartup = () => setStartupNote(startup);
 
   return (
     <>
       <div className='settings-view'>
+        <h3>Startup note</h3>
+        <p>Note to open automatically when the app loads. Leave empty to start on the home screen.</p>
+        <input
+          type='text'
+          name='startup'
+          value={startup}
+          placeholder='e.g. Note or Projects/Ideas'
+          onChange={(e) => setStartup(e.target.value)}
+          onBlur={changeStartup}
+        />
+      </div>
+      <div className='settings-view'>
         <h3>Server</h3>
-        <p>Enter server IP address and port (example: http://192.168.0.1:3001): </p>
-        <input type='text' name='server' defaultValue={serverIp!} onChange={saveServer} onBlur={changeServer}></input>
+          {
+            !isDemo ? (
+              <>
+                <p>Enter server IP address and port (example: http://192.168.0.1:3001): </p>
+                <input type='text' name='server' defaultValue={serverIp!} onChange={saveServer} onBlur={changeServer}></input>
+              </>
+            ) : (
+              <p>This is a demo. Your notes are saved locally in this browser.</p>
+            )
+          }
       </div>
     </>
   )

@@ -9,6 +9,9 @@ import { ContextMenu } from './contextMenu';
 import { toDirPath, nameOf, validateRename } from '../helpers/paths';
 import { useNotes } from '../hooks/useNotes';
 import { GraphView } from './graphView';
+import { getStartupNote } from '../helpers/startupNote';
+
+const isDemo = import.meta.env.VITE_STORAGE === 'indexeddb';
 
 const FileList = memo(({ files, onCreate, onDelete, onRename }: { files: string[], onCreate: (path:string) => void, onDelete: (path:string) => void, onRename: (path:string, newTitle:string) => void }) => {
   const { '*': parsedFilePath } = useParams();
@@ -153,6 +156,28 @@ function MainWorkspace() {
 
   const location = useLocation();
   const prevLocationRef = useRef(location);
+
+  // On load, redirect to the configured startup note (only when landing on the
+  // home screen, so deep links and in-app navigation are left alone).
+  useEffect(() => {
+    if (window.location.pathname !== '/') return;
+    const target = getStartupNote();
+    if (!target) return;
+    let cancelled = false;
+    (async () => {
+      // In the demo the note may still need seeding before we navigate to it.
+      if (isDemo) {
+        const { seedIfNeeded } = await import('../helpers/demoStore');
+        await seedIfNeeded();
+      }
+      if (!cancelled) navigate('/' + target, { replace: true });
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // Run once on mount (a fresh page load); in-app nav keeps this mounted.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // sidebar
   const [sidebarWidth, setSidebarWidth] = useState(() => {
