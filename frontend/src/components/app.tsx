@@ -248,16 +248,16 @@ function MainWorkspace() {
       <div className="l-app">
         <div className="l-header">
           <button className="btn-header" onClick={() => {toggleSideBar(!sideBarOpen); localStorage.setItem("sideBarOpen", JSON.stringify(!sideBarOpen))}}>
-            <TintedImage src='/sidebar.png' alt="Toggle Sidebar" />
+            <TintedImage src='/menu.svg' alt="Toggle Sidebar" />
           </button>
           <button className="btn-header" onClick={() => navigate("/settings/general")}>
-            <TintedImage src='/settings.png' alt="Settings" />
+            <TintedImage src='/settings.svg' alt="Settings" />
           </button>
           <div className="spacer" />
           <button className="btn-header" onClick={() => withViewTransition(() => updateShowGraph(!showGraph))}>
             {showGraph ?
-              <TintedImage src='/file.png' alt="editor" /> :
-              <TintedImage src='/graph.png' alt="graph" />
+              <TintedImage src='/editor.svg' alt="editor" /> :
+              <TintedImage src='/graph.svg' alt="graph" />
             }
           </button>
         </div>

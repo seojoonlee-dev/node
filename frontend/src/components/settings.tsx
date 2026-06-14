@@ -204,7 +204,7 @@ export function Settings({to}: SettingsProps) {
       <div className="l-app l-settings">
         <div className="l-header">
           <button className="btn-header" onClick={() => {navigate(to); console.log(to);}}>
-            <TintedImage src='/back.png' alt="Toggle Sidebar" />
+            <TintedImage src='/back.svg' alt="Toggle Sidebar" />
           </button>
           <h2 className='header-title'>Settings</h2>
         </div>
