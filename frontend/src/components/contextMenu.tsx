@@ -32,16 +32,6 @@ export function ContextMenu({ x, y, path, onClose, onRename, onDelete }: Context
         className="context-menu-item"
         onClick={(e) => {
           e.stopPropagation();
-          navigator.clipboard.writeText(path);
-          onClose();
-        }}
-      >
-        Copy File Path
-      </button>
-      <button
-        className="context-menu-item"
-        onClick={(e) => {
-          e.stopPropagation();
           onRename(path);
           onClose();
         }}

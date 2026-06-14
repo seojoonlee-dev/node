@@ -166,6 +166,10 @@ hr {
   border-radius: 6px;
   position: relative;
   transition: background-color 0.1s ease;
+  /* suppress the iOS long-press callout/selection so it doesn't fight the context menu */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .file-tree-node:hover,

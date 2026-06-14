@@ -13,6 +13,14 @@
   width: 150px;
   font-size: 12px;
   text-align: center;
+  /* suppress the iOS long-press callout/selection so it doesn't fight the context menu */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.graph-node-label {
+  display: block;
 }
 
 .graph-node-rename {

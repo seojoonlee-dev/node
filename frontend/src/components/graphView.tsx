@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ReactFlow, useNodesState, SelectionMode, Panel, Handle, Position, type Node, type NodeProps, type Viewport, type ReactFlowInstance } from '@xyflow/react';
 import { getLayoutedElements } from '../helpers/graphLayout';
 import { TintedImage } from './tintedImage';
 import { ContextMenu } from './contextMenu';
 import { loadSavedViewport, saveViewport, loadSavedPositions, savePositions, clearPositions, type NodePositions } from '../helpers/graphStorage';
 import { validateRename } from '../helpers/paths';
+import { useLongPress } from '../hooks/useLongPress';
 import '@xyflow/react/dist/style.css';
 import '../style/graph.css';
 
@@ -24,8 +25,14 @@ interface FileNodeData {
   onRenameCancel?: () => void;
 }
 
-const FileNode = ({ data }: NodeProps) => {
-  const { label, isRoot, renaming, onRenameCommit, onRenameCancel } = data as unknown as FileNodeData;
+// Lets FileNode open the context menu (touch long-press) without remapping
+// every node's data, which would break ReactFlow's node memoization.
+const NodeContextMenuContext = createContext<((x: number, y: number, path: string) => void) | null>(null);
+
+const FileNode = ({ id, data }: NodeProps) => {
+  const { label, filePath, isRoot, renaming, onRenameCommit, onRenameCancel } = data as unknown as FileNodeData;
+  const openMenu = useContext(NodeContextMenuContext);
+  const longPress = useLongPress();
 
   return (
     <>
@@ -44,7 +51,12 @@ const FileNode = ({ data }: NodeProps) => {
           onDoubleClick={(e) => e.stopPropagation()}
         />
       ) : (
-        label
+        <span
+          className="graph-node-label"
+          {...(openMenu && filePath ? longPress((x, y) => openMenu(x, y, id), true) : {})}
+        >
+          {label}
+        </span>
       )}
       <Handle type="source" position={Position.Right} />
     </>
@@ -85,6 +97,10 @@ export const GraphView: React.FC<GraphViewProps> = ({ files, onNodeClick, onNode
       setContextMenu({ x: event.clientX, y: event.clientY, path: node.id });
     }
   };
+
+  const openNodeMenu = useCallback((x: number, y: number, path: string) => {
+    setContextMenu({ x, y, path });
+  }, []);
 
   const [renaming, setRenaming] = useState<string | null>(null);
 
@@ -132,6 +148,7 @@ export const GraphView: React.FC<GraphViewProps> = ({ files, onNodeClick, onNode
 
   return (
     <div className="graph-view">
+      <NodeContextMenuContext.Provider value={openNodeMenu}>
       <ReactFlow
         onInit={(instance) => { instanceRef.current = instance; }}
         nodes={displayNodes}
@@ -159,6 +176,7 @@ export const GraphView: React.FC<GraphViewProps> = ({ files, onNodeClick, onNode
           </button>
         </Panel>
       </ReactFlow>
+      </NodeContextMenuContext.Provider>
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}
