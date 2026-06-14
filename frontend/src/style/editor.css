@@ -83,11 +83,98 @@ a:hover {
   vertical-align: middle;
 }
 
+/* Fenced code block: background box behind the lines.
+   Selectors are .cm-line.cm-code-block so they outrank CodeMirror's own
+   .cm-line padding (same class count would otherwise let CM win). */
+.cm-line.cm-code-block {
+  background-color: #1e1e1e;
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.cm-line.cm-code-block-first {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.cm-line.cm-code-block-last {
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.cm-code-block .cm-widgetBuffer {
+  display: none;
+}
+
+/* Code block header: language label (left) + copy button (right) */
+.cm-code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  user-select: none;
+}
+
+.cm-code-lang {
+  color: rgb(189, 189, 189);
+  font-size: 0.85em;
+  text-transform: lowercase;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.cm-code-copy {
+  background-color: #2e2e2e;
+  color: #ddd;
+  border: 1px solid #323232;
+  border-radius: 4px;
+  font-size: 0.8em;
+  padding: 1px 8px;
+  cursor: pointer;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.cm-code-copy:hover {
+  background-color: #262626;
+}
+
+/* Inline code chip */
+.cm-inline-code {
+  background-color: #1e1e1e;
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+
+/* Bullet-list marker */
+.cm-bullet {
+  color: #b8b8b8;
+}
+
+/* Clickable rendered links and wikilinks */
+.cm-link {
+  cursor: pointer;
+}
+
+.cm-wikilink {
+  cursor: pointer;
+  color: #b08cff;
+  text-decoration: underline;
+}
+
+.cm-wikilink:hover,
+.cm-link:hover {
+  opacity: 0.8;
+}
+
 .editor-error {
   display: none;
   position: absolute;
   top: 20px;
-  right: 20px;
+  right: 60px;
   color: red;
 }
 
