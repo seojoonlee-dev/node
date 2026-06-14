@@ -33,14 +33,17 @@ function General() {
       <div className='settings-view'>
         <h3>Startup note</h3>
         <p>Note to open automatically when the app loads. Leave empty to start on the home screen.</p>
-        <input
-          type='text'
-          name='startup'
-          value={startup}
-          placeholder='e.g. Note or Projects/Ideas'
-          onChange={(e) => setStartup(e.target.value)}
-          onBlur={changeStartup}
-        />
+        <div className='startup-input'>
+          <span className='startup-slash'>/</span>
+          <input
+            type='text'
+            name='startup'
+            value={startup}
+            placeholder='e.g. Note or Projects/Ideas'
+            onChange={(e) => setStartup(e.target.value.replace(/^\/+/, ''))}
+            onBlur={changeStartup}
+          />
+        </div>
       </div>
       <div className='settings-view'>
         <h3>Server</h3>

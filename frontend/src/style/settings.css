@@ -68,6 +68,28 @@ input {
     padding: 10px 20px;
 }
 
+/* Startup-note field with a fixed, non-editable leading "/" */
+.startup-input {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    background: #1e1e1e;
+    border-radius: 4px;
+    padding-left: 6px;
+}
+
+.startup-slash {
+    color: #9a928c;
+    user-select: none;
+}
+
+.startup-input input {
+    margin-top: 0;
+    background: transparent;
+    border-radius: 0;
+    padding-left: 2px;
+}
+
 .btn-reset {
     margin-top: 14px;
     align-self: flex-start;
