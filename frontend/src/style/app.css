@@ -7,7 +7,7 @@
 body {
   background-color: #282828;
   color: #FFF0E3;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--app-font, 'Times New Roman', Times, serif);
 }
 
 button {
@@ -193,7 +193,7 @@ hr {
   font-size: 14px;
   flex-shrink: 0;
   font-weight: bold;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--app-font, 'Times New Roman', Times, serif);
 }
 
 .file-tree-node:hover .btn-add {

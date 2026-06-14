@@ -3,6 +3,7 @@ import { TintedImage } from './tintedImage';
 import { Link, useParams } from 'react-router-dom';
 import { useState, type ChangeEvent } from 'react';
 import { getStartupNote, setStartupNote } from '../helpers/startupNote';
+import { FONTS, getFontName, setFont } from '../helpers/font';
 import '../style/settings.css';
 
 // The demo stores notes in the browser (IndexedDB) and has no backend, so the
@@ -63,10 +64,26 @@ function General() {
 }
 
 function Theme() {
+  const [font, setFontState] = useState(getFontName());
+
+  const changeFont = (event: ChangeEvent<HTMLSelectElement>) => {
+    const next = event.target.value;
+    setFontState(next);
+    setFont(next);
+  };
+
   return (
     <>
       <div className='settings-view'>
-        <p>wip</p>
+        <h3>Font</h3>
+        <p>Font used throughout the app (code blocks stay monospaced).</p>
+        <select className='font-select' value={font} onChange={changeFont}>
+          {FONTS.map((f) => (
+            <option key={f.name} value={f.name} style={{ fontFamily: f.stack }}>
+              {f.name}
+            </option>
+          ))}
+        </select>
       </div>
     </>
   )
@@ -76,7 +93,7 @@ function Demo() {
   const [resetting, setResetting] = useState(false);
 
   const handleReset = async () => {
-    if (!window.confirm('Reset the demo? This deletes all notes in this browser and restores the default note.')) {
+    if (!window.confirm('Reset the demo? This deletes all notes and settings in this browser and restores the default note.')) {
       return;
     }
     setResetting(true);
@@ -89,7 +106,7 @@ function Demo() {
   return (
     <div className='settings-view'>
       <h3>Reset demo</h3>
-      <p>Delete all notes saved in this browser and restore the default note.</p>
+      <p>Delete all notes and settings saved in this browser and restore the default note.</p>
       <button className='btn-reset' onClick={handleReset} disabled={resetting}>
         {resetting ? 'Resetting…' : 'Reset demo'}
       </button>

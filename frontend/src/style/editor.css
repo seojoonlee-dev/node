@@ -4,7 +4,7 @@
 }
 
 body {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--app-font, 'Times New Roman', Times, serif);
 }
 
 hr {
@@ -124,7 +124,7 @@ a:hover {
   color: rgb(189, 189, 189);
   font-size: 0.85em;
   text-transform: lowercase;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--app-font, 'Times New Roman', Times, serif);
 }
 
 .cm-code-copy {
@@ -135,7 +135,7 @@ a:hover {
   font-size: 0.8em;
   padding: 1px 8px;
   cursor: pointer;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: var(--app-font, 'Times New Roman', Times, serif);
 }
 
 .cm-code-copy:hover {

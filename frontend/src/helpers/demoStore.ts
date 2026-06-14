@@ -16,9 +16,11 @@ export const seedIfNeeded = async () => {
   localStorage.setItem(SEED_FLAG, '1');
 };
 
-// Wipe every note and restore the default note.
+// Wipe every note and all settings (font reverts to the Domine default, startup
+// note, sidebar, etc.), then restore the default note.
 export const resetDemo = async () => {
   await clear();
+  localStorage.clear();
   await seed();
   localStorage.setItem(SEED_FLAG, '1');
 };
